@@ -46,7 +46,7 @@ def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetail
             "relationship_status_bias": "singles only",
             "start_time": "10:00",
             "end_time": "12:00",
-            "location_of_event": "London, UK",
+            "location_of_event": "123 Main St, EC1A 1BB, London, UK",
             "price_of_event": "£20",
             "event_format": "offline"
         }}
@@ -63,7 +63,7 @@ def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetail
     })
 
     # Sometimes the model doesn't play along
-    if event_details.startswith("```python") or event_details.startswith("```"):
+    if event_details.startswith("```python") or event_details.endswith("```"):
         event_details = event_details.replace("```python", "").replace("```", "")
     event_details_dict: EventDetails = ast.literal_eval(event_details)
 
