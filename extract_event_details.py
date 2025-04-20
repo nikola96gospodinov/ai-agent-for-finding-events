@@ -1,18 +1,8 @@
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 import ast
-from typing import TypedDict
 
-class EventDetails(TypedDict, total=False):
-    age_range: str
-    gender_bias: str
-    sexual_orientation_bias: str
-    relationship_status_bias: str
-    start_time: str
-    end_time: str
-    location_of_event: str
-    price_of_event: str
-    event_format: str
+from typings import EventDetails
 
 def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetails:
     extract_details_template = """
