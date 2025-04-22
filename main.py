@@ -1,7 +1,10 @@
+from datetime import datetime
 from langchain_ollama.llms import OllamaLLM
 
 from scrape_web_page import scrap_page
 from extract_event_details import extract_event_details
+from disqualify_event import EventDisqualifier
+from typings import UserProfile
 
 webpage_content = scrap_page("https://www.eventbrite.co.uk/e/lesbian-pub-night-hosted-by-lesbian-supper-club-tickets-1289891864289?aff=ebdssbdestsearch&keep_tld=1")
 
@@ -9,32 +12,31 @@ model = OllamaLLM(model="gemma3:12b")
 
 event_details = extract_event_details(webpage_content, model)
 
-print(event_details)
+user_profile: UserProfile = {
+    "age": 28,
+    "gender": "male",
+    "sexual_orientation": "straight",
+    "relationship_status": "in a relationship",
+    "willingness_to_pay": True,
+    "budget": 20,
+    "willingness_for_online": False,
+    "excluded_times": ["after 22:00", "before 9:00", "9-5 weekdays"],
+    "location": "London, UK",
+    "distance_threshold": 10,
+    "time_commitment_in_minutes": 240,
+    "timeframe": {
+        "start_date": datetime(2025, 5, 1),
+        "end_date": datetime(2025, 5, 31)
+    },
+    "interests": ["technology", "coding", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
+    "goals": ["network professionally", "make new friends", "find a business partner"],
+    "occupation": "software engineer"
+}
 
-# ------------------------------------------------------------------------------------------------
+event_disqualifier = EventDisqualifier(user_profile, model)
+is_compatible = event_disqualifier.check_compatibility(event_details)
 
-# # Potential disqualifiers
-# age = 28
-# gender = "male"
-# sexual_orientation = "straight"
-# relationship_status = "in a relationship"
-# exclude_times = "after 22:00, before 9:00, 9-5 weekdays"
-# willingness_to_pay = "willing"
-# willingness_for_online = "not willing"
-
-# # TODO: Add disqualifiers for the user's location. Ask the user for their postcode and use a geocoding API to get the latitude and longitude. Then use a distance API to check if the event is within the distance threshold.
-# location = "London, UK"
-# # TODO: Add disqualifiers for the user's time commitment. Ask the user for the maximum number of hours they are willing to commit to the event. This will exclude events that last more than that.
-# time_commitment = "3 hours"
-# # TODO: Add disqualifiers for the user's budget. Ask the user for the maximum amount of money they are willing to spend on the event. This will exclude events that cost more than that.
-# budget = "£20"
-# # TODO: Add disqualifiers for the user's timeframe. Ask the user for the start and end dates of their availability. This will exclude events that are outside of that timeframe.
-# timeframe = "2025-05-01 to 2025-05-31"
-
-# # User profile
-# occupation = "software engineer"
-# interests = "technology, coding, startups, business, entrepreneurship, Formula 1, motorsports, go karting, football, health, fitness, hiking, nature, outdoors, latin dancing, alcohol free, offline, architecture, interior design"
-# goals = "network professionally, make new friends, find a business partner"
+print(is_compatible)
 
 # template = """
 #     The web page content is as follows:

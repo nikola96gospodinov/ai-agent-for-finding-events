@@ -18,7 +18,7 @@ class EventDisqualifier:
         )
 
     # TODO: Function that will use Geocoding API to check if the event is in the user's threshold for distance
-    def _is_event_within_acceptable_distance(self) -> bool:
+    def _is_event_within_acceptable_distance(self, event_details: EventDetails) -> bool:
         return True
 
     def _is_event_within_acceptable_timeframe(self, event_details: EventDetails) -> bool:
