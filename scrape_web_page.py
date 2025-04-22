@@ -8,4 +8,5 @@ def scrap_page(url):
         page.wait_for_load_state("networkidle")
         content = page.inner_text("body")
         browser.close()
+        print("Page scraped successfully")
         return content

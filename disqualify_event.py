@@ -31,18 +31,22 @@ class EventDisqualifier:
             event_date = datetime.strptime(event_date_str, "%d-%m-%Y")
 
         if timeframe_start_date and event_date < timeframe_start_date:
+            print("Event is before the timeframe start date")
             return False
         if timeframe_end_date and event_date > timeframe_end_date:
+            print("Event is after the timeframe end date")
             return False
 
         return True
 
     def _is_event_within_acceptable_price_range(self, event_details: EventDetails) -> bool:
         if event_details["price_of_event"] and not self.user_profile["willingness_to_pay"]:
+            print("Event is paid and the user doesn't want to pay")
             return False
         
         if event_details["price_of_event"] and self.user_profile["willingness_to_pay"]:
             if event_details["price_of_event"] > self.user_profile["budget"]:
+                print("Event is paid and the price is higher than the user's budget")
                 return False
 
         return True
@@ -53,6 +57,7 @@ class EventDisqualifier:
             end_time = datetime.strptime(event_details["end_time"], "%H:%M")
             time_difference = end_time - start_time
             if time_difference.total_seconds() > self.user_profile["time_commitment_in_minutes"] * 60:
+                print("Event is longer than the user's acceptable time commitment")
                 return False
 
         return True

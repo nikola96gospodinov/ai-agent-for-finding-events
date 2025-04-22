@@ -59,4 +59,7 @@ def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetail
         event_details = event_details.replace("```python", "").replace("```", "")
     event_details_dict: EventDetails = ast.literal_eval(event_details)
 
+    print("Event details:")
+    print(event_details_dict)
+
     return event_details_dict
