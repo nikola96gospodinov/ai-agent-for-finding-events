@@ -19,8 +19,8 @@ def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetail
             * The event is hosted by a gender-specific organization (e.g., "Women in Tech")
             * Marketing materials exclusively show one gender
             * The event addresses topics that are explicitly framed as gender-specific
-        - Sexual orientation bias - for example if the event is tailored to LGBTQ+ only, then the sexual orientation bias should be "LGBTQ+ only". If there are no sexual orientation bias, then it should be null
-        - Relationship status bias - for example if the event is tailored to singles only, then the relationship status bias should be "singles only". If there are no relationship status bias, then it should be null
+        - Sexual orientation bias - for example if the event is tailored to LGBTQ+ only, then the sexual orientation bias should be "LGBTQ+ only". If there are no sexual orientation bias, then it should be None
+        - Relationship status bias - for example if the event is tailored to singles only, then the relationship status bias should be "singles only". If there are no relationship status bias, then it should be None. Party nights are generally tailored to singles.
         - Date of the event - this should be in the following format: "06-01-2025", "14-01-2025", "18-03-2025 to 14-06-2025"
         - Start time of the event - this should be in the following format: "10:00", "22:00"
         - End time of the event - this should be in the following format: "12:00", "00:00"

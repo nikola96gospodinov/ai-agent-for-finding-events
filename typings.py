@@ -1,5 +1,5 @@
 from typing import TypedDict, Literal
-from datetime import datetime, time
+from datetime import datetime
 
 class EventDetails(TypedDict, total=False):
     age_range: str
@@ -26,15 +26,15 @@ class UserProfile(TypedDict, total=False):
     goals: list[str]
     occupation: str
 
-    age: int # ❌
-    gender: Literal["male", "female", "non-binary", "other"] # ❌
-    sexual_orientation: Literal["straight", "lesbian", "gay", "bisexual", "transgender", "other"] # ❌
-    relationship_status: Literal["single", "in a relationship"] # ❌
-    willingness_to_pay: bool # ✅
-    budget: Literal[0, 10, 20, 50, 100, 200, 500, 1000] # ✅
-    willingness_for_online: bool # ❌
-    excluded_times: list[str] # ❌
-    location: str # ✅
-    distance_threshold: DistanceThreshold # ✅
-    time_commitment_in_minutes: int # ✅
-    timeframe: Timeframe # ✅
+    age: int
+    gender: Literal["male", "female", "non-binary", "other"] 
+    sexual_orientation: Literal["straight", "lesbian", "gay", "bisexual", "transgender", "other"] 
+    relationship_status: Literal["single", "in a relationship"] 
+    willingness_to_pay: bool 
+    budget: Literal[0, 10, 20, 50, 100, 200, 500, 1000] 
+    willingness_for_online: bool 
+    excluded_times: list[str] 
+    location: str 
+    distance_threshold: DistanceThreshold 
+    time_commitment_in_minutes: int 
+    timeframe: Timeframe 
