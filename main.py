@@ -7,7 +7,7 @@ from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from typings import UserProfile
 
-webpage_content = scrap_page("https://www.techuk.org/what-we-deliver/events/techuk-workshop-infrastructure-build-and-street-furniture.html")
+webpage_content = scrap_page("https://www.eventbrite.co.uk/e/mastering-effective-communication-skills-for-success-in-life-tickets-1119657588989?aff=erellivmlt&_gl=1*1gnqe3n*_up*MQ..*_ga*MTI5NDQ0MzkxMy4xNzQ1MzM3Mjgx*_ga_TQVES5V6SH*MTc0NTMzNzI4MC4xLjEuMTc0NTMzNzUxMS4wLjAuMA..")
 
 model = OllamaLLM(model="gemma3:12b")
 
@@ -26,7 +26,7 @@ user_profile: UserProfile = {
     "distance_threshold": 10,
     "time_commitment_in_minutes": 240,
     "timeframe": {
-        "start_date": datetime(2025, 5, 1),
+        "start_date": datetime(2025, 4, 1),
         "end_date": datetime(2025, 5, 31)
     },
     "interests": ["technology", "coding", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
@@ -41,4 +41,4 @@ if is_compatible:
     event_relevance = calculate_event_relevance(webpage_content, user_profile, model)
     print(event_relevance)
 else:
-    print("Event is not compatible with the user's profile.")
+    print("Event is not compatible with the user's profile and/or preferences.")

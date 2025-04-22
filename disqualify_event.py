@@ -75,6 +75,8 @@ class EventDisqualifier:
             The user doesn't want to attend events {exclude_times}. All other times are fine.
 
             Here are the event details: {event_details}
+
+            Your response should be "True" or "False" and then on a new line, explain your reasoning.
         """
 
         prompt = ChatPromptTemplate.from_template(prompt_template)
@@ -88,4 +90,11 @@ class EventDisqualifier:
                 "willingness_for_online": self.user_profile["willingness_for_online"],
                 "exclude_times": self.user_profile["excluded_times"]
             })
-        return response.strip().lower() == "true"
+        
+        print("Response:")
+        print(response)
+        print(response.split(" ")[0].strip().lower() == "true")
+
+        # Extract the first word from the response and check if it's "true"
+        first_word = response.split()[0].strip().lower()
+        return first_word == "true"

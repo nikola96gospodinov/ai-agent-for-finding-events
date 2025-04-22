@@ -22,9 +22,9 @@ def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetail
         - Sexual orientation bias - for example if the event is tailored to LGBTQ+ only, then the sexual orientation bias should be "LGBTQ+ only". If there are no sexual orientation bias, then it should be None
         - Relationship status bias - for example if the event is tailored to singles only, then the relationship status bias should be "singles only". If there are no relationship status bias, then it should be None. Party nights are generally tailored to singles.
         - Date of the event - this should be in the following format: "06-01-2025", "14-01-2025", "18-03-2025 to 14-06-2025"
-        - Start time of the event - this should be in the following format: "10:00", "22:00"
-        - End time of the event - this should be in the following format: "12:00", "00:00"
-        - Location of the event - be as specific as possible. For example, "123 Main St, EC1A 1BB, London, UK" is more specific than "London, UK"
+        - Start time of the event - this should be in the following format: "10:00", "22:00". Note that this could be represented in many different ways. 6, 6:00pm, 18:00
+        - End time of the event - this should be in the following format: "12:00", "00:00". Note that this could be represented in many different ways. 6, 6:00pm, 18:00
+        - Location of the event - be as specific as possible. For example, "123 Main St, EC1A 1BB, London, UK" is more specific than "London, UK". If the street is not mentioned, then the postcode is the most important thing.
         - Price of the event - just put the number like 20, 50, 100, etc. in either float or int format without the currency symbol. If an event is free, then the price should be 0 instead of None
         - Whether the event is online, in person or both
 
