@@ -29,5 +29,5 @@ def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, m
         "goals": user_profile["goals"],
         "webpage_content": webpage_content
     })
-    print("\nRelevance score:")
-    print(result)
+
+    return result

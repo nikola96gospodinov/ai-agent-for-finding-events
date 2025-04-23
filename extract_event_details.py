@@ -1,3 +1,4 @@
+from datetime import datetime
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 import ast
@@ -21,7 +22,7 @@ def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetail
             * The event addresses topics that are explicitly framed as gender-specific
         - Sexual orientation bias - for example if the event is tailored to LGBTQ+ only, then the sexual orientation bias should be "LGBTQ+ only". If there are no sexual orientation bias, then it should be None
         - Relationship status bias - for example if the event is tailored to singles only, then the relationship status bias should be "singles only". If there are no relationship status bias, then it should be None. Party nights are generally tailored to singles.
-        - Date of the event - this should be in the following format: "06-01-2025", "14-01-2025", "18-03-2025 to 14-06-2025"
+        - Date of the event - this should be in the following format: "06-01-2025", "14-01-2025", "18-03-2025 to 14-06-2025". If the year of the event is not mentioned, then assume it's the current year - {current_year}
         - Start time of the event - this should be in the following format: "10:00", "22:00". Note that this could be represented in many different ways. 6, 6:00pm, 18:00
         - End time of the event - this should be in the following format: "12:00", "00:00". Note that this could be represented in many different ways. 6, 6:00pm, 18:00
         - Location of the event - be as specific as possible. For example, "123 Main St, EC1A 1BB, London, UK" is more specific than "London, UK". If the street is not mentioned, then the postcode is the most important thing.
@@ -51,7 +52,8 @@ def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetail
     event_details_chain = event_details_prompt | model
 
     event_details = event_details_chain.invoke({
-        "webpage_content": webpage_content
+        "webpage_content": webpage_content,
+        "current_year": datetime.now().year
     })
 
     # Sometimes the model doesn't play along

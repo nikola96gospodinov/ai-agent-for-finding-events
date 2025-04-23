@@ -7,7 +7,7 @@ from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from typings import UserProfile
 
-webpage_content = scrap_page("https://www.eventbrite.co.uk/e/mastering-effective-communication-skills-for-success-in-life-tickets-1119657588989?aff=erellivmlt&_gl=1*1gnqe3n*_up*MQ..*_ga*MTI5NDQ0MzkxMy4xNzQ1MzM3Mjgx*_ga_TQVES5V6SH*MTc0NTMzNzI4MC4xLjEuMTc0NTMzNzUxMS4wLjAuMA..")
+webpage_content = scrap_page("https://www.eventbrite.co.uk/e/business-networking-in-essex-tickets-1301259966589?aff=ebdssbdestsearch&_gl=1*5o5bu2*_up*MQ..*_ga*MTI5NDQ0MzkxMy4xNzQ1MzM3Mjgx*_ga_TQVES5V6SH*MTc0NTMzNzI4MC4xLjAuMTc0NTMzNzI4MC4wLjAuMA..")
 
 model = OllamaLLM(model="gemma3:12b")
 

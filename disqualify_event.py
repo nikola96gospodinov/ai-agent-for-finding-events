@@ -29,7 +29,7 @@ class EventDisqualifier:
         event_date = None
         if event_date_str:
             event_date = datetime.strptime(event_date_str, "%d-%m-%Y")
-
+        
         if timeframe_start_date and event_date < timeframe_start_date:
             print("Event is before the timeframe start date")
             return False
