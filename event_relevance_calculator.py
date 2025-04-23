@@ -4,20 +4,58 @@ from typings import UserProfile
 
 def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, model: OllamaLLM) -> float:
     template = """
-        The web page content is as follows:
+        You are a helpful personal assistant who evaluates events for relevance to a given user.
+
+        Your task is to scan the event information and determine how relevant it is to the user. Follow this EXACT scoring system and provide your analysis in the required format.
+
+        THE WEB PAGE CONTENT:
         {webpage_content}
 
-        You are a helpful personal assistant who evaluates web pages for relevance to a given user.
-        Your task is to scan the web page and determine if it is relevant to the user. You should return a percentage (0 to 100) of how relevant the event is for the user. It's very important that the score is explicitly stated at the start of the response.
-        After that, explain your reasoning behind the score.
+        USER INFORMATION:
+        - Occupation: {occupation} (This provides context but is not usually a primary factor)
+        - Interests: {interests}
+        - Goals: {goals}
 
-        The user is a person who is looking for a events relevant to their interests and goals.
+        SCORING SYSTEM (TOTAL: 0-100):
 
-        Their occupation is just for context. It may be relevant but most of the time it's not.
-        The user is a {occupation}.
+        STEP 1: INTEREST MATCH (0-50 POINTS)
+        - Direct match with primary interests: 15 points per match (maximum 30 points)
+        - Related/adjacent interests: 7 points per match (maximum 14 points)
+        - Event theme general alignment with interest areas: 0-6 points
 
-        The user is interested in {interests} and the user's goals are {goals}. There needs to be at least one common interest (or a close match) between the user and the event for it to be relevant and it needs to be aligned with the user's goals. An event doesn't need to hit all of the interests and goals but rather some of them. The more close matches, the higher the score.
-        Ignore very loose connections and indirect interests and goals. If there isn't at least one close match, the overall score should be 0.
+        STEP 2: GOAL ALIGNMENT (0-40 POINTS)
+        - Direct opportunity for stated goal: 15 points per goal (maximum 30 points)
+        - Indirect but meaningful support for goals: 5-10 points per goal
+        - Event format supports goal achievement: 0-10 points
+
+        STEP 3: CONTEXTUAL RELEVANCE (0-10 POINTS)
+        - Professional relevance (alignment with occupation): 0-5 points
+        - Special factors (unique opportunities, rare events): 0-5 points
+
+        IMPORTANT RULES:
+        - There MUST be at least one clear interest match for a score above 0
+        - Ignore very loose or tenuous connections
+        - Calculate exact point values for each category
+        - Sum all points for the final score
+
+        RESPONSE FORMAT:
+        1. Start with "RELEVANCE SCORE: X%" (where X is the total points)
+        2. Provide a 1-2 sentence summary of relevance
+        3. Show detailed scoring breakdown:
+        - Interest Match: X/50 points
+            * List specific matched interests and points awarded
+        - Goal Alignment: X/40 points
+            * Explain how event supports each relevant goal
+        - Contextual Relevance: X/10 points
+            * Explain any professional/special relevance
+        4. Conclude with overall assessment of why user should or should not consider this event
+
+        Score interpretation:
+        - 80-100: Highly relevant
+        - 60-79: Very relevant
+        - 40-59: Moderately relevant
+        - 20-39: Somewhat relevant
+        - 0-19: Minimally relevant
     """
     prompt = ChatPromptTemplate.from_template(template)
     chain = prompt | model
