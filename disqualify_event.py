@@ -96,9 +96,8 @@ class EventDisqualifier:
                 "exclude_times": self.user_profile["excluded_times"]
             })
         
-        print("Response:")
+        print("Event suitability:")
         print(response)
-        print(response.split(" ")[0].strip().lower() == "true")
 
         # Extract the first word from the response and check if it's "true"
         first_word = response.split()[0].strip().lower()
