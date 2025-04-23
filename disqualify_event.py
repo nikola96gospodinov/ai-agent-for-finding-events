@@ -9,13 +9,18 @@ class EventDisqualifier:
         self.model = model
 
     def check_compatibility(self, event_details: EventDetails) -> bool:
-        return (
-            self._is_event_within_acceptable_distance(event_details) and 
-            self._is_event_within_acceptable_timeframe(event_details) and 
-            self._is_event_within_acceptable_price_range(event_details) and 
-            self._is_event_within_time_commitment(event_details) and 
-            self._is_event_suitable_for_user(event_details)
-        )
+        # Check all quick conditions first
+        if not self._is_event_within_acceptable_distance(event_details):
+            return False
+        if not self._is_event_within_acceptable_timeframe(event_details):
+            return False
+        if not self._is_event_within_acceptable_price_range(event_details):
+            return False
+        if not self._is_event_within_time_commitment(event_details):
+            return False
+            
+        # Only check the expensive LLM operation if all other checks pass - this improves performance
+        return self._is_event_suitable_for_user(event_details)
 
     # TODO: Function that will use Geocoding API to check if the event is in the user's threshold for distance
     def _is_event_within_acceptable_distance(self, event_details: EventDetails) -> bool:
