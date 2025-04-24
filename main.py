@@ -59,4 +59,7 @@ def check_event(event_link: str):
     print("--------------------------------")
 
 for event_link in event_links:
-    check_event(event_link)
+    try:
+        check_event(event_link)
+    except Exception as e:
+        print(f"Error checking event: {e}")
