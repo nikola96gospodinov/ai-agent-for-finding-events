@@ -1,9 +1,8 @@
 import asyncio
 from datetime import datetime
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from langchain_ollama import ChatOllama
-from browser_use import Agent, Browser, BrowserConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from event_relevance_calculator import calculate_event_relevance
@@ -11,110 +10,24 @@ from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
 from typings import UserProfile
-from scraper import EventBriteScraper
 
-load_dotenv()
+if os.path.exists('.env'):
+    load_dotenv(find_dotenv(), override=True)
 
-# Set environment variable for Gemini
-os.environ["GEMINI_API_KEY"] = "AIzaSyAuEj_rIbWNONbF836719zzeVmfMpV3KYQ"
-
-model = ChatOllama(model="gemma3:12b")
-premium_model = ChatGoogleGenerativeAI(
+fallback_model = ChatOllama(model="gemma3:12b")
+model = ChatGoogleGenerativeAI(
     model='gemini-2.0-flash-exp',
     api_key=os.environ["GEMINI_API_KEY"]
 )
 
 # Verify the model is working before proceeding
 try:
-    premium_model.invoke("Hello")
+    model.invoke("Hello")
     print("Google Generative AI is working")
 except Exception as e:
     print(f"Error connecting to Google Generative AI: {e}")
     # Fallback to local model if Google API fails
-    premium_model = model  # Use the already defined Ollama model as fallback
-
-browser = Browser(
-    config=BrowserConfig(
-        browser_binary_path='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    )
-)
-
-task = """
-    - Go to https://www.eventbrite.com/
-    - Enter London as the location
-    - Enter the following search query: 'tech'
-    - Click on the search button. Note that the search button might be an icon
-    - Wait for the events to load
-    - A new page will load
-    - Scroll passed the promoted events
-    - Open the first 5 events
-    - Terminate the browser after you visit the first 5 events
-"""
-
-# We'll create the agent inside the main function to properly await it
-async def main():
-    # Choose which method to use:
-    use_browser_agent = False  # Set to True to use the Browser Use agent
-    
-    if use_browser_agent:
-        # Initialize the agent with Browser Use
-        agent = Agent(
-            task=task,
-            llm=premium_model,
-            browser=browser,
-        )
-        
-        # Run the agent
-        results = await agent.run()
-        print(f"\nResults from agent:\n{results.urls()}")
-        
-        # Wait for user input before closing
-        input('Press Enter to close the browser...')
-        await browser.close()
-    else:
-        # Use our custom scraper
-        print("Using custom EventBriteScraper...")
-        scraper = EventBriteScraper()
-        keywords = ["tech", "business networking", "startups"]
-        
-        events = await scraper.scrape_events_by_keywords(
-            country="United Kingdom",
-            city="London", 
-            keywords=keywords
-        )
-        
-        # Save links for further processing
-        all_links = []
-        for keyword, category_events in events.items():
-            for event in category_events["regular_events"]:
-                all_links.append(event["url"])
-                
-        # Check relevance for the top 3 events (as a demo)
-        if all_links:
-            print("\nChecking relevance for the first 3 events:")
-            user_profile = {
-                "age": 28,
-                "gender": "male",
-                "interests": ["technology", "coding", "startups", "business"],
-                "goals": ["network professionally", "make new friends"],
-                "occupation": "software engineer"
-            }
-            event_disqualifier = EventDisqualifier(user_profile, model)
-            
-            for i, link in enumerate(all_links[:3]):
-                print(f"\nEvent {i+1}: {link}")
-                try:
-                    webpage_content = scrap_page(link)
-                    event_details = extract_event_details(webpage_content, model)
-                    # Process event details as needed
-                    print(f"Title: {event_details.get('title', 'Unknown')}")
-                    print(f"Date: {event_details.get('date_of_event', 'Unknown')}")
-                    print(f"Location: {event_details.get('location_of_event', 'Unknown')}")
-                except Exception as e:
-                    print(f"Error processing event: {e}")
-
-if __name__ == '__main__':
-    asyncio.run(main())
+    model = fallback_model
 
 # event_links = [
 #     "https://www.eventbrite.co.uk/e/business-networking-in-essex-tickets-1301259966589?aff=ebdssbdestsearch&_gl=1*5o5bu2*_up*MQ..*_ga*MTI5NDQ0MzkxMy4xNzQ1MzM3Mjgx*_ga_TQVES5V6SH*MTc0NTMzNzI4MC4xLjAuMTc0NTMzNzI4MC4wLjAuMA..",
