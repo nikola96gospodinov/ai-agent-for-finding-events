@@ -11,8 +11,12 @@ from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
 from typings import UserProfile
+from scraper import EventBriteScraper
 
 load_dotenv()
+
+# Set environment variable for Gemini
+os.environ["GEMINI_API_KEY"] = "AIzaSyAuEj_rIbWNONbF836719zzeVmfMpV3KYQ"
 
 model = ChatOllama(model="gemma3:12b")
 premium_model = ChatGoogleGenerativeAI(
@@ -49,20 +53,65 @@ task = """
 
 # We'll create the agent inside the main function to properly await it
 async def main():
-    # Initialize the agent
-    agent = Agent(
-        task=task,
-        llm=premium_model,
-        browser=browser,
-    )
+    # Choose which method to use:
+    use_browser_agent = False  # Set to True to use the Browser Use agent
     
-    # Run the agent
-    results = await agent.run()
-    print(f"\nResults from agent:\n{results.urls()}")
-    
-    # Wait for user input before closing
-    input('Press Enter to close the browser...')
-    await browser.close()
+    if use_browser_agent:
+        # Initialize the agent with Browser Use
+        agent = Agent(
+            task=task,
+            llm=premium_model,
+            browser=browser,
+        )
+        
+        # Run the agent
+        results = await agent.run()
+        print(f"\nResults from agent:\n{results.urls()}")
+        
+        # Wait for user input before closing
+        input('Press Enter to close the browser...')
+        await browser.close()
+    else:
+        # Use our custom scraper
+        print("Using custom EventBriteScraper...")
+        scraper = EventBriteScraper()
+        keywords = ["tech", "business networking", "startups"]
+        
+        events = await scraper.scrape_events_by_keywords(
+            country="United Kingdom",
+            city="London", 
+            keywords=keywords
+        )
+        
+        # Save links for further processing
+        all_links = []
+        for keyword, category_events in events.items():
+            for event in category_events["regular_events"]:
+                all_links.append(event["url"])
+                
+        # Check relevance for the top 3 events (as a demo)
+        if all_links:
+            print("\nChecking relevance for the first 3 events:")
+            user_profile = {
+                "age": 28,
+                "gender": "male",
+                "interests": ["technology", "coding", "startups", "business"],
+                "goals": ["network professionally", "make new friends"],
+                "occupation": "software engineer"
+            }
+            event_disqualifier = EventDisqualifier(user_profile, model)
+            
+            for i, link in enumerate(all_links[:3]):
+                print(f"\nEvent {i+1}: {link}")
+                try:
+                    webpage_content = scrap_page(link)
+                    event_details = extract_event_details(webpage_content, model)
+                    # Process event details as needed
+                    print(f"Title: {event_details.get('title', 'Unknown')}")
+                    print(f"Date: {event_details.get('date_of_event', 'Unknown')}")
+                    print(f"Location: {event_details.get('location_of_event', 'Unknown')}")
+                except Exception as e:
+                    print(f"Error processing event: {e}")
 
 if __name__ == '__main__':
     asyncio.run(main())
