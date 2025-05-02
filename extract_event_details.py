@@ -56,9 +56,13 @@ def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetail
         "current_year": datetime.now().year
     })
 
+    if hasattr(event_details, 'content'):
+        event_details = event_details.content
+    
     # Sometimes the model doesn't play along
-    if event_details.startswith("```python") or event_details.endswith("```"):
+    if isinstance(event_details, str) and (event_details.startswith("```python") or event_details.endswith("```")):
         event_details = event_details.replace("```python", "").replace("```", "")
+    
     event_details_dict: EventDetails = ast.literal_eval(event_details)
 
     print("Event details:")

@@ -1,17 +1,18 @@
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 
-def scrap_page(url, max_retries=3):
+async def scrap_page(url, max_retries=3):
     for attempt in range(max_retries):
         try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                page = browser.new_page()
-                page.goto(url)
-                page.wait_for_load_state("domcontentloaded")
-                page.wait_for_timeout(1500)
-                content = page.inner_text("body")
-                browser.close()
-                return content
+            playwright = await async_playwright().start()
+            browser = await playwright.chromium.launch(headless=True)
+            page = await browser.new_page()
+            await page.goto(url)
+            await page.wait_for_load_state("domcontentloaded")
+            await page.wait_for_timeout(1500)
+            content = await page.inner_text("body")
+            await browser.close()
+            await playwright.stop()
+            return content
         except Exception as e:
             print(f"Attempt {attempt+1} failed: {e}")
             if attempt == max_retries - 1:

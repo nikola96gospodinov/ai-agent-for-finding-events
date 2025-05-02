@@ -111,13 +111,13 @@ class EventBriteScraper:
             keywords: List of keywords to search for
             
         Returns:
-            Dictionary of events organized by keyword
+            List of all event URLs from all keywords combined
         """
         if keywords is None:
             keywords = ["tech", "business", "networking"]
         
         await self.setup()
-        results = {}
+        all_events = []
         
         try:
             for keyword in keywords:
@@ -127,33 +127,9 @@ class EventBriteScraper:
                     city=city,
                     keywords=keyword
                 )
-                results[keyword] = events
+                all_events.extend(events)
         finally:
             await self.close()
         
-        return results
-
-# Example usage
-async def main():
-    scraper = EventBriteScraper()
-    keywords = ["tech", "business networking", "startups"]
-    
-    # Scrape events for these keywords
-    events = await scraper.scrape_events_by_keywords(
-        country="United Kingdom",
-        city="London", 
-        keywords=keywords
-    )
-    
-    # Print results
-    print("\n=== Events Found ===")
-    for keyword, keyword_events in events.items():
-        print(f"\n{keyword.upper()}:")
-        
-        print("Event links:")
-        for i, event in enumerate(keyword_events):
-            print(f"{i+1}. {event}")
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        return all_events
         
