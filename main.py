@@ -1,7 +1,10 @@
 import asyncio
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 from langchain_ollama import ChatOllama
 from browser_use import Agent, Browser, BrowserConfig
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 from event_relevance_calculator import calculate_event_relevance
 from extract_event_details import extract_event_details
@@ -9,8 +12,22 @@ from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
 from typings import UserProfile
 
+load_dotenv()
 
 model = ChatOllama(model="gemma3:12b")
+premium_model = ChatGoogleGenerativeAI(
+    model='gemini-2.0-flash-exp',
+    api_key=os.environ["GEMINI_API_KEY"]
+)
+
+# Verify the model is working before proceeding
+try:
+    premium_model.invoke("Hello")
+    print("Google Generative AI is working")
+except Exception as e:
+    print(f"Error connecting to Google Generative AI: {e}")
+    # Fallback to local model if Google API fails
+    premium_model = model  # Use the already defined Ollama model as fallback
 
 browser = Browser(
     config=BrowserConfig(
@@ -18,18 +35,30 @@ browser = Browser(
     )
 )
 
+task = """
+    - Go to https://www.eventbrite.com/
+    - Enter London as the location
+    - Enter the following search query: 'tech'
+    - Click on the search button. Note that the search button might be an icon
+    - Wait for the events to load
+    - A new page will load
+    - Scroll passed the promoted events
+    - Open the first 5 events
+    - Terminate the browser after you visit the first 5 events
+"""
+
 # We'll create the agent inside the main function to properly await it
 async def main():
     # Initialize the agent
     agent = Agent(
-        task="Go to https://www.eventbrite.com/, enter London as the location. Enter the following search query: 'tech'. Click on the search button. Wait for the events to load. Click on the first 5 events and extract the URL of each event.",
-        llm=model,
+        task=task,
+        llm=premium_model,
         browser=browser,
     )
     
     # Run the agent
     results = await agent.run()
-    print(f"\nResults from agent:\n{results}")
+    print(f"\nResults from agent:\n{results.urls()}")
     
     # Wait for user input before closing
     input('Press Enter to close the browser...')
