@@ -1,10 +1,10 @@
 from typings import EventDetails, UserProfile
-from langchain_ollama.llms import OllamaLLM
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime
 
 class EventDisqualifier:
-    def __init__(self, user_profile: UserProfile, model: OllamaLLM):
+    def __init__(self, user_profile: UserProfile, model: BaseChatModel):
         self.user_profile = user_profile
         self.model = model
 
@@ -95,6 +95,10 @@ class EventDisqualifier:
                 "willingness_for_online": self.user_profile["willingness_for_online"],
                 "exclude_times": self.user_profile["excluded_times"]
             })
+        
+        # Handle AIMessage if necessary
+        if hasattr(response, 'content'):
+            response = response.content
         
         print("Event suitability:")
         print(response)

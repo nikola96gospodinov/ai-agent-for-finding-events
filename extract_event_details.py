@@ -1,11 +1,11 @@
 from datetime import datetime
-from langchain_ollama.llms import OllamaLLM
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 import ast
 
 from typings import EventDetails
 
-def extract_event_details(webpage_content: str, model: OllamaLLM) -> EventDetails:
+def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDetails:
     extract_details_template = """
         The web page content is as follows:
         {webpage_content}

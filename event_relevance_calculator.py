@@ -1,8 +1,8 @@
-from langchain_ollama.llms import OllamaLLM
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from typings import UserProfile
 
-def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, model: OllamaLLM) -> float:
+def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, model: BaseChatModel) -> float:
     template = """
         You are a helpful personal assistant who evaluates events for relevance to a given user.
 
@@ -67,5 +67,9 @@ def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, m
         "goals": user_profile["goals"],
         "webpage_content": webpage_content
     })
+
+    # Handle AIMessage if necessary
+    if hasattr(result, 'content'):
+        result = result.content
 
     return result
