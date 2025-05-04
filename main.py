@@ -14,20 +14,21 @@ from scraper import EventBriteScraper
 if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)
 
-fallback_model = ChatOllama(model="gemma3:12b")
-model = ChatGoogleGenerativeAI(
-    model='gemini-2.0-flash-exp',
-    api_key=os.environ["GEMINI_API_KEY"]
-)
+# Due to limitations in the Google API, we're using exclusively Ollama for now
+model = ChatOllama(model="gemma3:12b")
+# model = ChatGoogleGenerativeAI(
+#     model='gemini-2.0-flash-exp',
+#     api_key=os.environ["GEMINI_API_KEY"]
+# )
 
-# Verify the model is working before proceeding
-try:
-    model.invoke("Hello")
-    print("Google Generative AI is working")
-except Exception as e:
-    print(f"Error connecting to Google Generative AI: {e}")
-    # Fallback to local model if Google API fails
-    model = fallback_model
+# # Verify the model is working before proceeding
+# try:
+#     model.invoke("Hello")
+#     print("Google Generative AI is working")
+# except Exception as e:
+#     print(f"Error connecting to Google Generative AI: {e}")
+#     # Fallback to local model if Google API fails
+#     model = fallback_model
 
 scraper = EventBriteScraper()
 
