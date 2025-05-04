@@ -54,6 +54,7 @@ user_profile: UserProfile = {
     }
 
 search_keywords = get_search_keywords(user_profile, model)
+print(search_keywords)
 
 scraper = EventBriteScraper()
 

@@ -34,10 +34,8 @@ class EventBriteScraper:
         search_url = f"{self.base_url}/d/{country.lower()}--{city.lower()}/{keywords}/?q={keywords}"
         
         await self.page.goto(search_url)
-        print(f"Navigated to search page: {search_url}")
         
         await self.page.wait_for_selector('ul[class*="SearchResultPanelContentEventCardList-module__eventList"]', timeout=5000)
-        print("Found event list container")
         
         await asyncio.sleep(1)
         
@@ -68,7 +66,6 @@ class EventBriteScraper:
                 
                 events.append(event_url)
 
-                print(f"Found promoted event {count+1}: {event_url}")
                 count += 1
                 
             except Exception as e:
@@ -93,7 +90,6 @@ class EventBriteScraper:
                 
                 events.append(event_url)
                 
-                print(f"Found regular event {count+1}: {event_url}")
                 count += 1
                 
             except Exception as e:
