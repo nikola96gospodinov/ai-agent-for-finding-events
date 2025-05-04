@@ -11,10 +11,12 @@ from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
 from typings import UserProfile
 from scraper import EventBriteScraper
+from get_search_keywords import get_search_keywords
+
 if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)
 
-# Due to limitations in the Google API, we're using exclusively Ollama for now
+# Due to limitations in the Gemini API, we're using exclusively Ollama for now
 model = ChatOllama(model="gemma3:12b")
 # model = ChatGoogleGenerativeAI(
 #     model='gemini-2.0-flash-exp',
@@ -29,8 +31,6 @@ model = ChatOllama(model="gemma3:12b")
 #     print(f"Error connecting to Google Generative AI: {e}")
 #     # Fallback to local model if Google API fails
 #     model = fallback_model
-
-scraper = EventBriteScraper()
 
 user_profile: UserProfile = {
         "age": 28,
@@ -52,6 +52,10 @@ user_profile: UserProfile = {
         "goals": ["network professionally", "make new friends", "find a business partner"],
         "occupation": "software engineer"
     }
+
+search_keywords = get_search_keywords(user_profile, model)
+
+scraper = EventBriteScraper()
 
 event_disqualifier = EventDisqualifier(user_profile, model)
 
@@ -76,7 +80,7 @@ async def main():
     event_links = await scraper.scrape_events_by_keywords(
         country="United Kingdom",
         city="London",
-        keywords=["tech", "business networking", "startups"]
+        keywords=search_keywords
     )
 
     for event_link in event_links:

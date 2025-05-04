@@ -1,6 +1,6 @@
 import asyncio
 from playwright.async_api import async_playwright
-
+from typing import List
 class EventBriteScraper:
     def __init__(self):
         self.base_url = "https://www.eventbrite.com"
@@ -101,7 +101,7 @@ class EventBriteScraper:
 
         return events
     
-    async def scrape_events_by_keywords(self, country="United Kingdom", city="London", keywords=None):
+    async def scrape_events_by_keywords(self, country="United Kingdom", city="London", keywords:List[str] | None=None):
         """
         Scrape event URLs for multiple keywords.
         
