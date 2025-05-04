@@ -38,7 +38,7 @@ user_profile: UserProfile = {
         "sexual_orientation": "straight",
         "relationship_status": "in a relationship",
         "willingness_to_pay": True,
-        "budget": 20,
+        "budget": 50,
         "willingness_for_online": False,
         "excluded_times": ["after 22:00", "before 9:00", "9-5 weekdays"],
         "location": "London, UK",
@@ -46,7 +46,7 @@ user_profile: UserProfile = {
         "time_commitment_in_minutes": 240, # 4 hours
         "timeframe": {
             "start_date": datetime(2025, 4, 1),
-            "end_date": datetime(2025, 5, 31)
+            "end_date": datetime(2025, 12, 31)
         },
         "interests": ["technology", "coding", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
         "goals": ["network professionally", "make new friends", "find a business partner"],
