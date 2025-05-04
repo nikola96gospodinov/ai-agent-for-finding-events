@@ -24,7 +24,7 @@ def get_search_keywords(user_profile: UserProfile, model: BaseChatModel) -> List
         Combination of an interest and a goal is more preferable than a single interest or goal. At the same time, don't lump together unrelated interests and goals. For example "travel dancing" or "outdoors interior design" are not good search queries.
 
         Limit the search queries to 3 words or less. The number of search queries should be between 5 and 20.
-        Don't include words like "events", "meetups" etc. in the search queries.
+        Don't include words like "events", "meetups" etc. in the search queries. Only include words like "networking" if they are very relevant to the rest of the search query.
         Avoid having overly similar search queries that will potentially return the same events.
         
         The response should be a list of search queries separated by commas. For example: "tech, business, networking"
