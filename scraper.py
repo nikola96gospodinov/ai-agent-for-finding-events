@@ -131,5 +131,6 @@ class EventBriteScraper:
         finally:
             await self.close()
         
-        return all_events
+        unique_events = list(dict.fromkeys(all_events))
+        return unique_events
         
