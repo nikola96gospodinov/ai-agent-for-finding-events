@@ -10,7 +10,7 @@ from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
 from typings import UserProfile
-from scraper import EventBriteScraper
+from scrapers import EventBriteScraper, MeetupScraper
 from get_search_keywords import get_search_keywords
 
 if os.path.exists('.env'):
@@ -56,7 +56,8 @@ user_profile: UserProfile = {
 search_keywords = get_search_keywords(user_profile, model)
 print(search_keywords)
 
-scraper = EventBriteScraper()
+eventbrite_scraper = EventBriteScraper()
+meetup_scraper = MeetupScraper()
 
 event_disqualifier = EventDisqualifier(user_profile, model)
 
@@ -78,9 +79,15 @@ async def check_event(event_link: str):
     print("--------------------------------")
 
 async def main():
-    event_links = await scraper.scrape_events_by_keywords(
-        country="United Kingdom",
-        city="London",
+    # event_links = await eventbrite_scraper.scrape_events_by_keywords(
+    #     country="United Kingdom",
+    #     city="London",
+    #     keywords=search_keywords
+    # )
+
+    event_links = await meetup_scraper.scrape_events_by_keywords(
+        location="London",
+        country_code="gb",
         keywords=search_keywords
     )
 
