@@ -203,3 +203,72 @@ class MeetupScraper(BaseEventScraper):
         
         return events
 
+class LumaScraper(BaseEventScraper):
+    def __init__(self, headless: bool = True):
+        super().__init__(base_url="https://lu.ma", headless=headless)
+    
+    async def extract_event_urls(self, location="london", max_events=25, keywords=None):
+        """
+        Extract URLs of events from Luma.
+        
+        Args:
+            location: Location to search in (city name)
+            keywords: Search terms to find relevant events
+            max_events: Maximum number of events to extract
+            
+        Returns:
+            List of event URLs
+        """
+        search_url = f"{self.base_url}/{location}".lower()
+        
+        print(f"Navigating to: {search_url}")
+
+        await self.page.goto(search_url)
+
+        await self.page.wait_for_selector('a[class*="event-link content-link"]', timeout=10000)
+        print("Events loaded")
+        
+        # Scroll to load more events
+        for _ in range(3):
+            await self.page.evaluate("window.scrollBy(0, 1000)")
+            await asyncio.sleep(1)
+        
+        # Extract event links
+        events = []
+        event_cards = await self.page.query_selector_all('a[class*="event-link content-link"]')
+
+        print(f"Found {len(event_cards)} luma cards")
+        
+        # Skip the first 5 events
+        event_cards = event_cards[5:]
+        print(f"Skipping first 5 events, processing {len(event_cards)} remaining events")
+
+        for i, card in enumerate(event_cards):
+            if i >= max_events:
+                break
+
+            event_url = await card.get_attribute('href')
+            events.append(f"https://lu.ma/{event_url}")
+        
+        return events
+        
+    async def scrape_events_by_keywords(self, keywords=None, location="london", max_events=25, **kwargs):
+        """
+        Override the base class method for Luma since we don't use keywords.
+        
+        Args:
+            keywords: Ignored for Luma
+            location: Location to search in
+            max_events: Maximum number of events to extract
+            
+        Returns:
+            List of event URLs
+        """
+        # Just use location directly - ignore keywords
+        await self.setup()
+        
+        try:
+            events = await self.extract_event_urls(location=location, max_events=max_events)
+            return events
+        finally:
+            await self.close()
