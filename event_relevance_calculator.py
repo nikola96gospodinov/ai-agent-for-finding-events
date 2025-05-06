@@ -1,8 +1,8 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
-from typings import UserProfile
+from custom_typings import UserProfile
 
-def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, model: BaseChatModel) -> float:
+def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, model: BaseChatModel) -> float | int:
     template = """
         You are a helpful personal assistant who evaluates events for relevance to a given user.
 
@@ -56,19 +56,10 @@ def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, m
         - Justify each point allocation with specific evidence from the event description
 
         RESPONSE FORMAT:
-        1. Start with "RELEVANCE SCORE: X%" (where X is the total points)
+        1. Start with "X" (where X is the total points)
         2. Provide a 1-2 sentence summary of relevance
         3. Show detailed scoring breakdown with sub-scores for each component
         4. Conclude with specific reasons why this event ranks where it does relative to an average relevant event
-
-        Score interpretation:
-        - 90-100: Exceptionally relevant
-        - 80-89: Highly relevant
-        - 70-79: Very relevant
-        - 60-69: Relevant
-        - 50-59: Moderately relevant
-        - 40-49: Somewhat relevant
-        - Below 40: Minimally relevant
     """
     prompt = ChatPromptTemplate.from_template(template)
     chain = prompt | model
@@ -85,4 +76,14 @@ def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, m
     if hasattr(result, 'content'):
         result = result.content
 
-    return result
+    print(f"Event relevance score: {result}")
+
+    score_text = result.strip().split(" ")[0]
+    try:
+        return int(score_text)
+    except ValueError:
+        try:
+            return float(score_text)
+        except ValueError:
+            print(f"Could not convert score '{score_text}' to a number")
+            return 0
