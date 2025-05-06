@@ -217,8 +217,6 @@ class LumaScraper(BaseEventScraper):
             List of event URLs
         """
         search_url = f"{self.base_url}/{location}".lower()
-        
-        print(f"Navigating to: {search_url}")
 
         await self.page.goto(search_url)
 
@@ -233,12 +231,9 @@ class LumaScraper(BaseEventScraper):
         # Extract event links
         events = []
         event_cards = await self.page.query_selector_all('a[class*="event-link content-link"]')
-
-        print(f"Found {len(event_cards)} luma cards")
         
         # Skip the first 5 events
         event_cards = event_cards[5:]
-        print(f"Skipping first 5 events, processing {len(event_cards)} remaining events")
 
         for i, card in enumerate(event_cards):
             if i >= max_events:
