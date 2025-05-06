@@ -83,11 +83,11 @@ async def check_event(event_link: str):
 async def main():
     event_links: list[str] = []
 
-    # event_links.extend(await eventbrite_scraper.scrape_events_by_keywords(
-    #     country="United Kingdom",
-    #     city="London",
-    #     keywords=search_keywords
-    # ))
+    event_links.extend(await eventbrite_scraper.scrape_events_by_keywords(
+        country="United Kingdom",
+        city="London",
+        keywords=search_keywords
+    ))
 
     event_links.extend(await meetup_scraper.scrape_events_by_keywords(
         location="London",
