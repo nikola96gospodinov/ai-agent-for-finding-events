@@ -56,7 +56,7 @@ def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, m
         - Justify each point allocation with specific evidence from the event description
 
         RESPONSE FORMAT:
-        1. Start with "X" (where X is the total points)
+        1. Start with "X" (where X is the total points and don't include any other text. The first word is the score)
         2. Provide a 1-2 sentence summary of relevance
         3. Show detailed scoring breakdown with sub-scores for each component
         4. Conclude with specific reasons why this event ranks where it does relative to an average relevant event
@@ -78,7 +78,13 @@ def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, m
 
     print(f"Event relevance score: {result}")
 
-    score_text = result.strip().split(" ")[0]
+    score_text = "0"
+    for word in result.split():
+        cleaned_word = ''.join(c for c in word if c.isdigit() or c == '.')
+        if cleaned_word and cleaned_word[0].isdigit():
+            if cleaned_word.count('.') <= 1:
+                score_text = cleaned_word
+                break
     try:
         return int(score_text)
     except ValueError:

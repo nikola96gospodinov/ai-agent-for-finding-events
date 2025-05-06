@@ -53,7 +53,7 @@ class BaseEventScraper:
         
         try:
             for keyword in keywords:
-                print(f"\nSearching for '{keyword}' events...")
+                print(f"Searching for '{keyword}' events...")
                 events = await self.extract_event_urls(keywords=keyword, **kwargs)
                 all_events.extend(events)
         finally:
@@ -186,8 +186,6 @@ class MeetupScraper(BaseEventScraper):
         events = []
         event_cards = await self.page.query_selector_all('a[id="event-card-in-search-results"]')
         
-        print(f"Found {len(event_cards)} meetup cards")
-        
         for i, card in enumerate(event_cards):
             if i >= max_events:
                 break
@@ -197,7 +195,6 @@ class MeetupScraper(BaseEventScraper):
                 if event_url and '/events/' in event_url:
                     full_url = event_url if event_url.startswith('http') else f"{self.base_url}{event_url}"
                     events.append(full_url)
-                    print(f"Found meetup: {full_url}")
             except Exception as e:
                 print(f"Error extracting meetup URL: {e}")
         
