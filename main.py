@@ -9,7 +9,7 @@ from event_relevance_calculator import calculate_event_relevance
 from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
-from typings import UserProfile
+from custom_typings import UserProfile
 from scrapers import EventBriteScraper, MeetupScraper, LumaScraper
 from get_search_keywords import get_search_keywords
 
@@ -79,23 +79,25 @@ async def check_event(event_link: str):
     print("--------------------------------")
 
 async def main():
-    # event_links = await eventbrite_scraper.scrape_events_by_keywords(
-    #     country="United Kingdom",
-    #     city="London",
-    #     keywords=search_keywords
-    # )
+    event_links: list[str] = []
 
-    # event_links = await meetup_scraper.scrape_events_by_keywords(
-    #     location="London",
-    #     country_code="gb",
-    #     keywords=search_keywords
-    # )
+    event_links.extend(await eventbrite_scraper.scrape_events_by_keywords(
+        country="United Kingdom",
+        city="London",
+        keywords=search_keywords
+    ))
 
-    event_links = await luma_scraper.scrape_events_by_keywords(
+    event_links.extend(await meetup_scraper.scrape_events_by_keywords(
+        location="London",
+        country_code="gb",
+        keywords=search_keywords
+    ))
+
+    event_links.extend(await luma_scraper.scrape_events_by_keywords(
         location="London",
         max_events=40,
         keywords=search_keywords
-    )
+    ))
 
     for event_link in event_links:
         try:

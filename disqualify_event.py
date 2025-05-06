@@ -1,7 +1,8 @@
-from typings import EventDetails, UserProfile
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime
+
+from custom_typings import EventDetails, UserProfile
 
 class EventDisqualifier:
     def __init__(self, user_profile: UserProfile, model: BaseChatModel):

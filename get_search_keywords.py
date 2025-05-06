@@ -1,7 +1,8 @@
 from typing import List
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
-from typings import UserProfile
+
+from custom_typings import UserProfile
 
 def get_search_keywords(user_profile: UserProfile, model: BaseChatModel) -> List[str]:
     """

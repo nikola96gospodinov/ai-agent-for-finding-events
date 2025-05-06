@@ -3,7 +3,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 import ast
 
-from typings import EventDetails
+from custom_typings import EventDetails
 
 def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDetails:
     extract_details_template = """
@@ -12,6 +12,7 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
 
         Extract the details of the event from the web page.
         The details that I need are:
+        - Title of the event
         - Age range 
         - Gender bias - return "women only", "men only", or other specific gender designation if:
             * The event explicitly states it's for a specific gender
@@ -32,6 +33,7 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
         The response should be a Python dictionary:
         Example:
         {{
+            "title": "Event Title",
             "age_range": "25-35",
             "gender_bias": "women only",
             "sexual_orientation_bias": "LGBTQ+ only",

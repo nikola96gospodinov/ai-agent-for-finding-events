@@ -2,6 +2,7 @@ from typing import TypedDict, Literal
 from datetime import datetime
 
 class EventDetails(TypedDict, total=False):
+    title: str
     age_range: str
     gender_bias: str
     sexual_orientation_bias: str
