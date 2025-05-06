@@ -174,8 +174,7 @@ class MeetupScraper(BaseEventScraper):
         await self.page.goto(search_url)
         
         # Wait for the events to load
-        await self.page.wait_for_selector('a[id="event-card-in-search-results"]', timeout=10000)
-        print("Events loaded")
+        await self.page.wait_for_selector('a[href*="/events/"]', timeout=10000)
         
         # Scroll to load more events
         for _ in range(3):
@@ -184,7 +183,7 @@ class MeetupScraper(BaseEventScraper):
         
         # Extract event links
         events = []
-        event_cards = await self.page.query_selector_all('a[id="event-card-in-search-results"]')
+        event_cards = await self.page.query_selector_all('a[href*="/events/"]')
         
         for i, card in enumerate(event_cards):
             if i >= max_events:
@@ -221,7 +220,6 @@ class LumaScraper(BaseEventScraper):
         await self.page.goto(search_url)
 
         await self.page.wait_for_selector('a[class*="event-link content-link"]', timeout=10000)
-        print("Events loaded")
         
         # Scroll to load more events
         for _ in range(3):

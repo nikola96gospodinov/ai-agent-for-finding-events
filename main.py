@@ -74,7 +74,7 @@ async def check_event(event_link: str):
         return {
             "event_link": event_link,
             "relevance": event_relevance,
-            "event_title": event_details.title,
+            "title": event_details["title"]
         }
     else:
         print("Event is not compatible with the user's profile and/or preferences.")
@@ -83,11 +83,11 @@ async def check_event(event_link: str):
 async def main():
     event_links: list[str] = []
 
-    event_links.extend(await eventbrite_scraper.scrape_events_by_keywords(
-        country="United Kingdom",
-        city="London",
-        keywords=search_keywords
-    ))
+    # event_links.extend(await eventbrite_scraper.scrape_events_by_keywords(
+    #     country="United Kingdom",
+    #     city="London",
+    #     keywords=search_keywords
+    # ))
 
     event_links.extend(await meetup_scraper.scrape_events_by_keywords(
         location="London",
@@ -109,11 +109,10 @@ async def main():
                 events_with_relevance.append(event)
         except Exception as e:
             print(f"Error checking event: {e}")
-
     sorted_events = sorted(events_with_relevance, key=lambda x: x["relevance"], reverse=True)
 
     for event in sorted_events:
-        print(f"Event: {event['event_link']} - Relevance: {event['relevance']}")
+        print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}")
 
 if __name__ == "__main__":
     asyncio.run(main())
