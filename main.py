@@ -111,7 +111,15 @@ async def main():
             print(f"Error checking event: {e}")
     sorted_events = sorted(events_with_relevance, key=lambda x: x["relevance"], reverse=True)
 
+    # Remove duplicate events based on title
+    unique_events = []
+    seen_titles = set()
     for event in sorted_events:
+        if event["title"] not in seen_titles:
+            unique_events.append(event)
+            seen_titles.add(event["title"])
+    
+    for event in unique_events:
         print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}")
 
 if __name__ == "__main__":
