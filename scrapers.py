@@ -242,7 +242,7 @@ class LumaScraper(BaseEventScraper):
         
         return events
         
-    async def scrape_events_by_keywords(self, keywords=None, location="london", max_events=25, **kwargs):
+    async def scrape_events_by_keywords(self, keywords=None, location="london", max_events=25):
         """
         Override the base class method for Luma since we don't use keywords.
         
@@ -262,3 +262,33 @@ class LumaScraper(BaseEventScraper):
             return events
         finally:
             await self.close()
+
+async def get_event_links(search_keywords: list[str], eventbrite = True, meetup = True, luma = True) -> list[str]:
+    eventbrite_scraper = EventBriteScraper()
+    meetup_scraper = MeetupScraper()
+    luma_scraper = LumaScraper()
+
+    event_links = []
+    
+    if eventbrite:
+        event_links.extend(await eventbrite_scraper.scrape_events_by_keywords(
+            country="United Kingdom",
+            city="London",
+            keywords=search_keywords
+        ))
+
+    if meetup:
+        event_links.extend(await meetup_scraper.scrape_events_by_keywords(
+            location="London",
+            country_code="gb",
+            keywords=search_keywords
+        ))
+
+    if luma:
+        event_links.extend(await luma_scraper.scrape_events_by_keywords(
+            location="London",
+            max_events=40,
+            keywords=search_keywords
+        ))
+
+    return event_links

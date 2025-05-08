@@ -10,8 +10,9 @@ from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
 from custom_typings import UserProfile
-from scrapers import EventBriteScraper, MeetupScraper, LumaScraper
+from scrapers import get_event_links
 from get_search_keywords import get_search_keywords
+from utils import remove_duplicates_based_on_title
 
 if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)
@@ -54,10 +55,6 @@ user_profile: UserProfile = {
     }
 
 search_keywords = get_search_keywords(user_profile, model)
-
-eventbrite_scraper = EventBriteScraper()
-meetup_scraper = MeetupScraper()
-luma_scraper = LumaScraper()
 event_disqualifier = EventDisqualifier(user_profile, model)
 
 async def check_event(event_link: str):
@@ -85,45 +82,21 @@ async def check_event(event_link: str):
         return None
 
 async def main():
-    event_links: list[str] = []
+    event_links = await get_event_links(search_keywords)
 
-    event_links.extend(await eventbrite_scraper.scrape_events_by_keywords(
-        country="United Kingdom",
-        city="London",
-        keywords=search_keywords
-    ))
-
-    event_links.extend(await meetup_scraper.scrape_events_by_keywords(
-        location="London",
-        country_code="gb",
-        keywords=search_keywords
-    ))
-
-    event_links.extend(await luma_scraper.scrape_events_by_keywords(
-        location="London",
-        max_events=40,
-        keywords=search_keywords
-    ))
-
-    events_with_relevance = []
-    for event_link in event_links[:3]:
+    events = []
+    for event_link in event_links:
         try:
             event = await check_event(event_link)
             if event is not None:
-                events_with_relevance.append(event)
+                events.append(event)
         except Exception as e:
             print(f"Error checking event: {e}")
-    sorted_events = sorted(events_with_relevance, key=lambda x: x["relevance"], reverse=True)
 
-    # Remove duplicate events based on title
-    unique_events = []
-    seen_titles = set()
-    for event in sorted_events:
-        if event["title"] not in seen_titles:
-            unique_events.append(event)
-            seen_titles.add(event["title"])
+    events = sorted(events, key=lambda x: x["relevance"], reverse=True)
+    events = remove_duplicates_based_on_title(events)
     
-    for event in unique_events:
+    for event in events:
         print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}")
 
 if __name__ == "__main__":
