@@ -84,7 +84,7 @@ async def check_event(event_link: str):
         return None
 
 async def main():
-    event_links = await get_event_links(search_keywords[:1], meetup=False, luma=False)
+    event_links = await get_event_links(search_keywords)
 
     events = []
     for event_link in event_links:
