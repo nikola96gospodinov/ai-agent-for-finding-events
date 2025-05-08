@@ -12,6 +12,7 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
 
         Before extracting the details, check if the event is sold out, out of spaces, or on the same day as today. Today is {current_date}.
         If any of these conditions are met, the overall response should be set to None and there will be no need for details to be extracted.
+        "Sales ending soon", "Sales end soon", "Limited spaces left", "Limited availability", "Limited availability left", or similar phrases are not a sign of a sold out event and details should be extracted.
 
         Extract the details of the event from the web page.
         The details that I need are:

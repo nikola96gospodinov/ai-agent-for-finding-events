@@ -2,94 +2,120 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from custom_typings import UserProfile
 
-def calculate_event_relevance(webpage_content: str, user_profile: UserProfile, model: BaseChatModel) -> float | int:
-    template = """
-        You are a helpful personal assistant who evaluates events for relevance to a given user.
+class EventRelevanceCalculator:
+    def __init__(self, model: BaseChatModel, user_profile: UserProfile):
+        self.model = model
+        self.user_profile = user_profile
 
-        Your task is to scan the event information and determine how relevant it is to the user using a precise scoring system.
+    def _calculate_event_relevance_based_on_interests_and_goals(self, webpage_content: str) -> float | int:
+        template = """
+            You are a helpful personal assistant who evaluates events for relevance to a given user.
 
-        THE WEB PAGE CONTENT:
-        {webpage_content}
+            Your task is to scan the event information and determine how relevant it is to the user using a precise scoring system and rich reasoning.
 
-        USER INFORMATION:
-        - Occupation: {occupation}
-        - Interests: {interests}
-        - Goals: {goals}
+            THE WEB PAGE CONTENT:
+            {webpage_content}
 
-        SCORING SYSTEM (TOTAL: 0-100):
+            USER INFORMATION:
+            - Occupation: {occupation}
+            - Interests: {interests}
+            - Goals: {goals}
 
-        STEP 1: INTEREST MATCH (0-45 POINTS)
-        - Primary interest match evaluation (0-30 points):
-        * Perfect match (central topic of event): 10 points per match
-        * Strong match (explicitly mentioned): 7 points per match
-        * Moderate match (component of event): 4 points per match
-        * No limit on number of matches, but maximum total: 30 points
+            SCORING SYSTEM (MAX: 90 POINTS)
 
-        - Interest depth assessment (0-15 points):
-        * Beginner-friendly for new interests: 3-5 points
-        * Intermediate level for developing interests: 6-10 points
-        * Advanced/specialized for deep interests: 11-15 points
+            STEP 1: INTEREST MATCH (0-40 POINTS)
+            Evaluate how strongly the event aligns with the user's stated interests.
+            - **Perfect Match** (9-10 points): Core to the event title or primary theme
+            - **Strong Match** (6-8 points): Prominently mentioned as topic/activity
+            - **Moderate Match** (3-5 points): Secondary or partial focus
+            - **Adjacent Match** (1-2 points): Indirect but thematically relevant
+            > Total capped at 40 points
 
-        STEP 2: GOAL ALIGNMENT (0-35 POINTS)
-        - Goal opportunity quality (0-20 points):
-        * Exceptional opportunity for goal: 15-20 points
-        * Good opportunity for goal: 10-14 points
-        * Basic opportunity for goal: 5-9 points
-        * Limited opportunity for goal: 1-4 points
+            STEP 2: GOAL ALIGNMENT (0-30 POINTS)
+            Assess how well the event supports the user's goals.
 
-        - Goal efficiency (0-15 points):
-        * Multiple goals addressed simultaneously: 10-15 points
-        * Single goal addressed effectively: 5-9 points
-        * Partial goal support: 1-4 points
+            2A. **Goal Opportunity Quality** (0-20 points):
+            - Exceptional opportunity: 17-20
+            - Strong opportunity: 13-16
+            - Moderate opportunity: 7-12
+            - Weak or limited: 1-6
 
-        STEP 3: EVENT QUALITY FACTORS (0-20 POINTS)
-        - Exclusivity/rarity (0-5 points)
-        - Timing convenience (0-5 points)
-        - Professional development value (0-5 points)
-        - Networking potential quality (0-5 points)
+            2B. **Goal Efficiency** (0-10 points):
+            - Multiple goals addressed well: 8-10
+            - One goal clearly supported: 5-7
+            - Partial/indirect support: 1-4
 
-        IMPORTANT RULES:
-        - Use the FULL range of points within each category
-        - Be precise in your scoring - use specific point values, not just the maximum
-        - There must be at least one interest match for a score above 0
-        - Calculate exact point values for each category and subcategory
-        - Justify each point allocation with specific evidence from the event description
+            STEP 3: EVENT QUALITY FACTORS (0-20 POINTS)
+            Evaluate how well the event fits the user's preferences and schedule.
+            - **Exclusivity or Rarity** (0-5 points)
+            - **Timing Convenience** (0-5 points)
+            - **Professional Development Value** (0-5 points)
+            - **Networking Potential** (0-5 points)
 
-        RESPONSE FORMAT:
-        1. Start with "X" (where X is the total points and don't include any other text. The first word is the score)
-        2. Provide a 1-2 sentence summary of relevance
-        3. Show detailed scoring breakdown with sub-scores for each component
-        4. Conclude with specific reasons why this event ranks where it does relative to an average relevant event
-    """
-    prompt = ChatPromptTemplate.from_template(template)
-    chain = prompt | model
+            IMPORTANT RULES:
+            - Use the full range of scores for each category.
+            - Each category must use at least 3 different point values (not just min/max)
+            - Always justify each score with specific evidence from the event description.
+            - At least one interest match is required for any score above 0.
+            - Use varied phrasing and tone in your reasoning (analytical, conversational, comparative).
+            - Use some variation in how you phrase judgments to avoid repetitive tone.
 
-    # Include the webpage content in the prompt
-    result = chain.invoke({
-        "occupation": user_profile["occupation"],
-        "interests": user_profile["interests"],
-        "goals": user_profile["goals"],
-        "webpage_content": webpage_content
-    })
+            RESPONSE FORMAT:
+            1. Start with "X" (where X is the total points and don't include any other text. The first word is the score)
+            2. Provide a 1-2 sentence summary of relevance
+            3. Show detailed scoring breakdown with sub-scores for each component
+            4. Conclude with specific reasons why this event ranks where it does relative to an average relevant event
+        """
+        prompt = ChatPromptTemplate.from_template(template)
+        chain = prompt | self.model
 
-    # Handle AIMessage if necessary
-    if hasattr(result, 'content'):
-        result = result.content
+        # Include the webpage content in the prompt
+        result = chain.invoke({
+            "occupation": self.user_profile["occupation"],
+            "interests": self.user_profile["interests"],
+            "goals": self.user_profile["goals"],
+            "webpage_content": webpage_content
+        })
 
-    print(f"Event relevance score: {result}")
+        # Handle AIMessage if necessary
+        if hasattr(result, 'content'):
+            result = result.content
 
-    score_text = "0"
-    for word in result.split():
-        cleaned_word = ''.join(c for c in word if c.isdigit() or c == '.')
-        if cleaned_word and cleaned_word[0].isdigit():
-            if cleaned_word.count('.') <= 1:
-                score_text = cleaned_word
-                break
-    try:
-        return int(score_text)
-    except ValueError:
+        print(f"Event relevance score: {result}")
+
+        score_text = "0"
+        for word in result.split():
+            cleaned_word = ''.join(c for c in word if c.isdigit() or c == '.')
+            if cleaned_word and cleaned_word[0].isdigit():
+                if cleaned_word.count('.') <= 1:
+                    score_text = cleaned_word
+                    break
         try:
-            return float(score_text)
+            return int(score_text)
         except ValueError:
-            print(f"Could not convert score '{score_text}' to a number")
+            try:
+                return float(score_text)
+            except ValueError:
+                print(f"Could not convert score '{score_text}' to a number")
+                return 0
+            
+    def _calculate_price_score(self, price_of_event: int | float, budget: int | float) -> float:
+        if price_of_event > budget:
             return 0
+        elif price_of_event == 0:
+            return 5
+        else:
+            price_ratio = 1 - (price_of_event / budget)
+            return 5 * price_ratio
+        
+    # TODO: Implement distance score
+    def _calculate_distance_score(self) -> float:
+        return 5
+    
+    def calculate_event_relevance_score(self, webpage_content: str, price: int | float) -> float:
+        relevance_score = self._calculate_event_relevance_based_on_interests_and_goals(webpage_content)
+        price_score = self._calculate_price_score(price, self.user_profile["budget"])
+        distance_score = self._calculate_distance_score()
+        
+        total_score = relevance_score + price_score + distance_score
+        return round(total_score, 1)

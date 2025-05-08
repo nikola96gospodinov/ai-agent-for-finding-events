@@ -5,7 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 from langchain_ollama import ChatOllama
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from event_relevance_calculator import calculate_event_relevance
+from event_relevance_calculator import EventRelevanceCalculator
 from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
@@ -56,6 +56,7 @@ user_profile: UserProfile = {
 
 search_keywords = get_search_keywords(user_profile, model)
 event_disqualifier = EventDisqualifier(user_profile, model)
+event_relevance_calculator = EventRelevanceCalculator(model, user_profile)
 
 async def check_event(event_link: str):
     print(f"Checking event: {event_link}")
@@ -71,10 +72,11 @@ async def check_event(event_link: str):
     is_compatible = event_disqualifier.check_compatibility(event_details)
 
     if is_compatible:
-        event_relevance = calculate_event_relevance(webpage_content, user_profile, model)
+        event_relevance_score = event_relevance_calculator.calculate_event_relevance_score(webpage_content, event_details["price_of_event"])
+        print(f"Event relevance score: {event_relevance_score}")
         return {
             "event_link": event_link,
-            "relevance": event_relevance,
+            "relevance": event_relevance_score,
             "title": event_details["title"]
         }
     else:
@@ -82,7 +84,7 @@ async def check_event(event_link: str):
         return None
 
 async def main():
-    event_links = await get_event_links(search_keywords)
+    event_links = await get_event_links(search_keywords[:1], meetup=False, luma=False)
 
     events = []
     for event_link in event_links:
