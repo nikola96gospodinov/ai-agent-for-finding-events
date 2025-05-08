@@ -66,6 +66,10 @@ async def check_event(event_link: str):
     webpage_content = await scrap_page(event_link)
 
     event_details = extract_event_details(webpage_content, model)
+    
+    if event_details is None:
+        print("Event is either sold out or not available.")
+        return None
 
     is_compatible = event_disqualifier.check_compatibility(event_details)
 
@@ -102,7 +106,7 @@ async def main():
     ))
 
     events_with_relevance = []
-    for event_link in event_links:
+    for event_link in event_links[:3]:
         try:
             event = await check_event(event_link)
             if event is not None:

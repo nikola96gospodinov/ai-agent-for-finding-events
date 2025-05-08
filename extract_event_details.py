@@ -5,10 +5,13 @@ import ast
 
 from custom_typings import EventDetails
 
-def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDetails:
+def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDetails | None:
     extract_details_template = """
         The web page content is as follows:
         {webpage_content}
+
+        Before extracting the details, check if the event is sold out, out of spaces, or on the same day as today. Today is {current_date}.
+        If any of these conditions are met, the overall response should be set to None and there will be no need for details to be extracted.
 
         Extract the details of the event from the web page.
         The details that I need are:
@@ -30,7 +33,7 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
         - Price of the event - just put the number like 20, 50, 100, etc. in either float or int format without the currency symbol. If an event is free, then the price should be 0 instead of None
         - Whether the event is online, in person or both
 
-        The response should be a Python dictionary:
+        The response should be None if there is something to indicate so, or a Python dictionary:
         Example:
         {{
             "title": "Event Title",
@@ -55,7 +58,8 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
 
     event_details = event_details_chain.invoke({
         "webpage_content": webpage_content,
-        "current_year": datetime.now().year
+        "current_year": datetime.now().year,
+        "current_date": datetime.now().strftime("%d-%m-%Y")
     })
 
     if hasattr(event_details, 'content'):
@@ -65,9 +69,12 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
     if isinstance(event_details, str) and (event_details.startswith("```python") or event_details.endswith("```")):
         event_details = event_details.replace("```python", "").replace("```", "")
     
-    event_details_dict: EventDetails = ast.literal_eval(event_details)
+    try:
+        event_details_result: EventDetails | None = ast.literal_eval(event_details)
+    except (SyntaxError, ValueError):
+        event_details_result = None
 
     print("Event details:")
-    print(event_details_dict)
+    print(event_details_result)
 
-    return event_details_dict
+    return event_details_result

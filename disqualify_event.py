@@ -72,6 +72,8 @@ class EventDisqualifier:
         prompt_template = """
             You are a helpful assistant that determines if an event is appropriate for a user. If it is appropriate, you should return "True". If it is not, you should return "False".
             If any of the following conditions are not met, return "False" regardless of the other conditions. If an event characteristic is missing (it's None), it's not a disqualifier so move on to the next condition.
+            
+            Here are the event details: {event_details}
 
             The user is {age} years old. Do not use overly broad age ranges. For example, 28 to 49 is not acceptable. Allow some flexibility. For example, if the user is 28 or 41 but the event is for people in their 30s, it is acceptable.
             The user is {gender}. Return "False" if the event is not suitable for the user's gender.
@@ -80,7 +82,6 @@ class EventDisqualifier:
             The user is {willingness_for_online} to go to online events. Return "False" if the event is online and the user is unwilling to go to online events. If an event is both online and offline, it's not a disqualifier.
             The user doesn't want to attend events {exclude_times}. All other times are fine.
 
-            Here are the event details: {event_details}
 
             Your response should be "True" or "False" and then on a new line, explain your reasoning.
         """
