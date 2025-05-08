@@ -99,7 +99,7 @@ async def main():
     events = remove_duplicates_based_on_title(events)
     
     for event in events:
-        print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}")
+        print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}\n")
 
 if __name__ == "__main__":
     asyncio.run(main())
