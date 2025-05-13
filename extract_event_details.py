@@ -15,7 +15,7 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
         "Sales ending soon", "Sales end soon", "Limited spaces left", "Limited availability", "Limited availability left", or similar phrases are not a sign of a sold out event and details should be extracted.
 
         Extract the details of the event from the web page.
-        The details that I need are:
+        The details that are needed are:
         - Title of the event
         - Age range 
         - Gender bias - return "women only", "men only", or other specific gender designation if:

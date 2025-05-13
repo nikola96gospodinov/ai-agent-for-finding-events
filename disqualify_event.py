@@ -3,7 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime
 
 from custom_typings import EventDetails, UserProfile
-
+    
 class EventDisqualifier:
     def __init__(self, user_profile: UserProfile, model: BaseChatModel):
         self.user_profile = user_profile
