@@ -32,7 +32,7 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
         - End time of the event - this should be in the following format: "10:00", "22:00". Note that the time could be represented in many different ways on the page. 6, 6:00pm, 18:00 etc. but we need to extract the time in 24 hour format.
         - Location of the event - be as specific as possible. For example, "123 Main St, EC1A 1BB, London, UK" is more specific than "London, UK". If the street is not mentioned, then the postcode is the most important thing.
         - Price of the event - just put the number like 20, 50, 100, etc. in either float or int format without the currency symbol. If an event is free, then the price should be 0 instead of None
-        - Whether the event is online, in person or both
+        - Whether the event is online, in person or both. Mentions of Zoom, Online, Virtual, etc. should be considered online unless it's a combination of in person and online, in which case it should be "both".
 
         The response should be None if there is something to indicate so, or a Python dictionary:
         Example:
