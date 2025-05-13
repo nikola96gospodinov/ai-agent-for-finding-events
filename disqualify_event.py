@@ -3,7 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime
 
 from custom_typings import EventDetails, UserProfile
-from utils import get_address_coordinates
+from utils import get_address_coordinates, calculate_distance
 
 class EventDisqualifier:
     def __init__(self, user_profile: UserProfile, model: BaseChatModel):
@@ -24,16 +24,39 @@ class EventDisqualifier:
         # Only check the expensive LLM operation if all other checks pass - this improves performance
         return self._is_event_suitable_for_user(event_details)
 
-    # TODO: Function that will use Geocoding API to check if the event is in the user's threshold for distance
     def _is_event_within_acceptable_distance(self, event_details: EventDetails) -> bool:
-        event_address_coordinates = get_address_coordinates(event_details["location"])
-
-        if event_address_coordinates:
-            # Check if the event is within the user's acceptable distance
+        # If user has no location or distance threshold, distance is not a factor
+        if not self.user_profile.get("location") or not self.user_profile.get("distance_threshold"):
             return True
+            
+        # Get event location coordinates
+        event_location = event_details.get("location")
+        if not event_location:
+            # If event has no location, we can't calculate distance
+            return True
+            
+        event_coordinates = get_address_coordinates(event_location)
+        if not event_coordinates:
+            # If we couldn't get coordinates for the event, we can't calculate distance
+            print(f"Could not get coordinates for event location: {event_location}")
+            return True
+            
+        # Calculate distance
+        distance = calculate_distance(self.user_profile["location"], event_coordinates)
         
-        # If one of the addresses is missing, 
-        return True
+        # Convert distance to user's preferred unit if necessary
+        if self.user_profile["distance_threshold"]["unit"] == "miles":
+            distance = distance * 0.621371  # Convert km to miles
+            
+        # Check if the event is within the user's acceptable distance
+        max_distance = self.user_profile["distance_threshold"]["distance_threshold"]
+        within_threshold = distance <= max_distance
+        
+        if not within_threshold:
+            print(f"Event is too far: {distance:.2f} {self.user_profile['distance_threshold']['unit']} " +
+                  f"(max: {max_distance} {self.user_profile['distance_threshold']['unit']})")
+            
+        return within_threshold
 
     def _is_event_within_acceptable_timeframe(self, event_details: EventDetails) -> bool:
         timeframe_start_date = self.user_profile["timeframe"]["start_date"]

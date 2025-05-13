@@ -18,9 +18,11 @@ class Timeframe(TypedDict, total=False):
     start_date: datetime
     end_date: datetime
 
+DistanceUnit = Literal["km", "miles"]
+
 class DistanceThreshold(TypedDict, total=False):
     distance_threshold: int
-    unit: Literal["km", "miles"]
+    unit: DistanceUnit
 
 class Location(TypedDict, total=False):
     latitude: float
