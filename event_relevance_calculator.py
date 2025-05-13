@@ -112,7 +112,7 @@ class EventRelevanceCalculator:
         
     def _calculate_distance_score(self) -> float:
         if not self.user_profile["location"] or not self.user_profile["distance_threshold"]:
-            return 5
+            return 0
         
         if not self.event_details["location_of_event"] or not self.event_details["location_of_event"]["latitude"] or not self.event_details["location_of_event"]["longitude"]:
             return 0
