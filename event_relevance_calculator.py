@@ -1,7 +1,7 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
-from custom_typings import UserProfile, Location
+from custom_typings import UserProfile, Location, EventDetails
 from utils import calculate_distance
 
 class EventRelevanceCalculator:
@@ -10,6 +10,7 @@ class EventRelevanceCalculator:
         self.user_profile = user_profile
 
     def _calculate_event_relevance_based_on_interests_and_goals(self, webpage_content: str) -> float | int:
+
         template = """
             You are a helpful personal assistant who evaluates events for relevance to a given user.
 
@@ -126,10 +127,13 @@ class EventRelevanceCalculator:
         distance_ratio = 1 - (distance / self.user_profile["distance_threshold"]["distance_threshold"])
         return 5 * max(0, distance_ratio)  # Ensure we don't return negative scores
     
-    def calculate_event_relevance_score(self, webpage_content: str, price: int | float, location_of_event: Location) -> float:
+    def calculate_event_relevance_score(self, webpage_content: str | None, event_details: EventDetails) -> float:
+        if webpage_content is None:
+            return 0
+
         relevance_score = self._calculate_event_relevance_based_on_interests_and_goals(webpage_content)
-        price_score = self._calculate_price_score(price, self.user_profile["budget"])
-        distance_score = self._calculate_distance_score(location_of_event)
+        price_score = self._calculate_price_score(event_details["price_of_event"], self.user_profile["budget"])
+        distance_score = self._calculate_distance_score(event_details["location_of_event"])
         
         total_score = relevance_score + price_score + distance_score
         return round(total_score, 1)

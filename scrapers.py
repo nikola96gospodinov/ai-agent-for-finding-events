@@ -1,5 +1,5 @@
 import asyncio
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, Browser, BrowserContext, Page, Playwright
 from typing import List, Optional
 
 class BaseEventScraper:
@@ -8,10 +8,10 @@ class BaseEventScraper:
     def __init__(self, base_url: str, headless: bool = True):
         self.base_url = base_url
         self.headless = headless
-        self.playwright = None
-        self.browser = None
-        self.context = None
-        self.page = None
+        self.playwright: Playwright
+        self.browser: Browser
+        self.context: BrowserContext
+        self.page: Page
         
     async def setup(self):
         """Initialize playwright browser."""

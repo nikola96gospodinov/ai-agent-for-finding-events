@@ -1,5 +1,5 @@
 import requests
-from requests.utils import quote
+from urllib.parse import quote
 import math
 import re
 

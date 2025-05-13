@@ -4,28 +4,28 @@ from datetime import datetime
 class LocationOfEvent(TypedDict, total=False):
     latitude: float
     longitude: float
-    full_address: str
+    full_address: str | None
 
-class EventDetails(TypedDict, total=False):
+class EventDetails(TypedDict):
     title: str
-    age_range: str
-    gender_bias: str
-    sexual_orientation_bias: str
-    relationship_status_bias: str
-    date_of_event: str
-    start_time: str
-    end_time: str
+    age_range: str | None
+    gender_bias: str | None
+    sexual_orientation_bias: str | None
+    relationship_status_bias: str | None
+    date_of_event: str | None
+    start_time: str | None
+    end_time: str | None
     location_of_event: LocationOfEvent
     price_of_event: float | int
-    event_format: str
+    event_format: str | None
 
-class Timeframe(TypedDict, total=False):
+class Timeframe(TypedDict):
     start_date: datetime
     end_date: datetime
 
 DistanceUnit = Literal["km", "miles"]
 
-class DistanceThreshold(TypedDict, total=False):
+class DistanceThreshold(TypedDict):
     distance_threshold: int
     unit: DistanceUnit
 
@@ -33,7 +33,7 @@ class Location(TypedDict):
     latitude: float
     longitude: float
 
-class UserProfile(TypedDict, total=False):
+class UserProfile(TypedDict):
     interests: list[str]
     goals: list[str]
     occupation: str
