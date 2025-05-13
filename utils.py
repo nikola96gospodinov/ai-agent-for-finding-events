@@ -1,4 +1,5 @@
 import requests
+from custom_typings import Location
 
 def remove_duplicates_based_on_title(events: list[dict]) -> list[dict]:
     unique_events = []
@@ -10,7 +11,7 @@ def remove_duplicates_based_on_title(events: list[dict]) -> list[dict]:
 
     return unique_events
 
-def get_address_coordinates(address: str) -> tuple[float, float] | None:
+def get_address_coordinates(address: str) -> Location | None:
     url = f"https://nominatim.openstreetmap.org/search?q={address.replace(' ', '+')}&format=json&polygon_kml=1&addressdetails=1"
     headers = {
         'User-Agent': 'EventDisqualifierApp/1.0',  # Required by Nominatim's usage policy
@@ -22,7 +23,10 @@ def get_address_coordinates(address: str) -> tuple[float, float] | None:
             if result_json and len(result_json) > 0:
                 lat = float(result_json[0]['lat'])
                 lon = float(result_json[0]['lon'])
-                return (lat, lon)
+                return {
+                    "latitude": lat,
+                    "longitude": lon
+                }
             else:
                 print("No results found in the response")
         else:

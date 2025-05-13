@@ -3,7 +3,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime
 
 from custom_typings import EventDetails, UserProfile
-    
+from utils import get_address_coordinates
+
 class EventDisqualifier:
     def __init__(self, user_profile: UserProfile, model: BaseChatModel):
         self.user_profile = user_profile
@@ -25,6 +26,13 @@ class EventDisqualifier:
 
     # TODO: Function that will use Geocoding API to check if the event is in the user's threshold for distance
     def _is_event_within_acceptable_distance(self, event_details: EventDetails) -> bool:
+        event_address_coordinates = get_address_coordinates(event_details["location"])
+
+        if event_address_coordinates:
+            # Check if the event is within the user's acceptable distance
+            return True
+        
+        # If one of the addresses is missing, 
         return True
 
     def _is_event_within_acceptable_timeframe(self, event_details: EventDetails) -> bool:

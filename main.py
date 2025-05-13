@@ -33,6 +33,8 @@ model = ChatOllama(model="gemma3:12b")
 #     # Fallback to local model if Google API fails
 #     model = fallback_model
 
+
+
 user_profile: UserProfile = {
         "age": 28,
         "gender": "male",
@@ -42,7 +44,10 @@ user_profile: UserProfile = {
         "budget": 50,
         "willingness_for_online": False,
         "excluded_times": ["after 22:00", "before 9:00", "9-5 weekdays"],
-        "location": "London, UK",
+        "location": {
+            "latitude": 51.5253263,
+            "longitude": -0.1015115
+        },
         "distance_threshold": 10,
         "time_commitment_in_minutes": 240, # 4 hours
         "timeframe": {
