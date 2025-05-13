@@ -48,7 +48,10 @@ user_profile: UserProfile = {
             "latitude": 51.5253263,
             "longitude": -0.1015115
         },
-        "distance_threshold": 10,
+        "distance_threshold": {
+            "distance_threshold": 10,
+            "unit": "miles"
+        },
         "time_commitment_in_minutes": 240, # 4 hours
         "timeframe": {
             "start_date": datetime(2025, 4, 1),

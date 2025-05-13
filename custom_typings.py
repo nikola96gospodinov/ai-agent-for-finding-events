@@ -24,7 +24,7 @@ class DistanceThreshold(TypedDict, total=False):
     distance_threshold: int
     unit: DistanceUnit
 
-class Location(TypedDict, total=False):
+class Location(TypedDict):
     latitude: float
     longitude: float
 

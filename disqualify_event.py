@@ -29,8 +29,7 @@ class EventDisqualifier:
         if not self.user_profile.get("location") or not self.user_profile.get("distance_threshold"):
             return True
             
-        # Get event location coordinates
-        event_location = event_details.get("location")
+        event_location = event_details.get("location_of_event")
         if not event_location:
             # If event has no location, we can't calculate distance
             return True
@@ -41,20 +40,15 @@ class EventDisqualifier:
             print(f"Could not get coordinates for event location: {event_location}")
             return True
             
-        # Calculate distance
-        distance = calculate_distance(self.user_profile["location"], event_coordinates)
-        
-        # Convert distance to user's preferred unit if necessary
-        if self.user_profile["distance_threshold"]["unit"] == "miles":
-            distance = distance * 0.621371  # Convert km to miles
+        distance = calculate_distance(loc1=self.user_profile["location"], loc2=event_coordinates, distance_unit=self.user_profile["distance_threshold"]["unit"])
             
         # Check if the event is within the user's acceptable distance
         max_distance = self.user_profile["distance_threshold"]["distance_threshold"]
         within_threshold = distance <= max_distance
         
         if not within_threshold:
-            print(f"Event is too far: {distance:.2f} {self.user_profile['distance_threshold']['unit']} " +
-                  f"(max: {max_distance} {self.user_profile['distance_threshold']['unit']})")
+            print("Event is too far")
+            return False
             
         return within_threshold
 
