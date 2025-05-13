@@ -1,6 +1,11 @@
 from typing import TypedDict, Literal
 from datetime import datetime
 
+class LocationOfEvent(TypedDict, total=False):
+    latitude: float
+    longitude: float
+    full_address: str
+
 class EventDetails(TypedDict, total=False):
     title: str
     age_range: str
@@ -10,7 +15,7 @@ class EventDetails(TypedDict, total=False):
     date_of_event: str
     start_time: str
     end_time: str
-    location_of_event: str
+    location_of_event: LocationOfEvent
     price_of_event: float | int
     event_format: str
 

@@ -4,7 +4,7 @@ from langchain_core.prompts import ChatPromptTemplate
 import ast
 
 from custom_typings import EventDetails
-
+from utils import get_address_coordinates
 def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDetails | None:
     extract_details_template = """
         The web page content is as follows:
@@ -30,7 +30,7 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
         - Date of the event - this should be in the following format: "DD-MM-YYYY". If the year of the event is not mentioned, then assume it's the current year - {current_year}. If there are multiple dates, then return the most relevant but never multiple dates. For example "14-01-2025 to 14-06-2025" should be "14-01-2025"
         - Start time of the event - this should be in the following format: "10:00", "22:00". Note that the time could be represented in many different ways on the page. 6, 6:00pm, 18:00 etc. but we need to extract the time in 24 hour format.
         - End time of the event - this should be in the following format: "10:00", "22:00". Note that the time could be represented in many different ways on the page. 6, 6:00pm, 18:00 etc. but we need to extract the time in 24 hour format.
-        - Location of the event - be as specific as possible. For example, "123 Main St, EC1A 1BB, London, UK" is more specific than "London, UK". If the street is not mentioned, then the postcode is the most important thing.
+        - Location of the event - be as specific as possible. For example, "123 Main St, EC1A 1BB, London, UK" is more specific than "London, UK". If the street is not mentioned, then the postcode is the most important thing. If it says TBC, then return None for the location.
         - Price of the event - just put the number like 20, 50, 100, etc. in either float or int format without the currency symbol. If an event is free, then the price should be 0 instead of None
         - Whether the event is online, in person or both. Mentions of Zoom, Online, Virtual, etc. should be considered online unless it's a combination of in person and online, in which case it should be "both".
 
@@ -45,7 +45,9 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
             "date_of_event": "06-01-2025",
             "start_time": "10:00",
             "end_time": "12:00",
-            "location_of_event": "123 Main St, EC1A 1BB, London, UK",
+            "location_of_event": {
+                "full_address": "123 Main St, EC1A 1BB, London, UK"
+            },
             "price_of_event": "20",
             "event_format": "offline"
         }}
@@ -74,6 +76,14 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
         event_details_result: EventDetails | None = ast.literal_eval(event_details)
     except (SyntaxError, ValueError):
         event_details_result = None
+
+    if event_details_result and event_details_result.get("location_of_event"):
+        coordinates = get_address_coordinates(event_details_result["location_of_event"]["full_address"])
+        if coordinates:
+            event_details_result["location_of_event"]["latitude"] = coordinates["latitude"]
+            event_details_result["location_of_event"]["longitude"] = coordinates["longitude"]
+        else:
+            event_details_result["location_of_event"] = None
 
     print("Event details:")
     print(event_details_result)
