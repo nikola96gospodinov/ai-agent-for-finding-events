@@ -1,5 +1,7 @@
 import requests
+from requests.utils import quote
 import math
+import re
 
 from custom_typings import Location, DistanceUnit
 
@@ -13,8 +15,13 @@ def remove_duplicates_based_on_title(events: list[dict]) -> list[dict]:
 
     return unique_events
 
+def extract_postcode_from_address(address: str) -> str | None:
+    postcode_pattern = r'\b[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}\b'
+    match = re.search(postcode_pattern, address)
+    return match.group(0) if match else None
+
 def get_address_coordinates(address: str) -> Location | None:
-    url = f"https://nominatim.openstreetmap.org/search?q={address.replace(' ', '+')}&format=json&polygon_kml=1&addressdetails=1"
+    url = f"https://nominatim.openstreetmap.org/search?q={quote(address)}&format=json&polygon_kml=1&addressdetails=1"
     headers = {
         'User-Agent': 'EventDisqualifierApp/1.0',  # Required by Nominatim's usage policy
     }
@@ -28,7 +35,18 @@ def get_address_coordinates(address: str) -> Location | None:
                     "longitude": float(result_json[0]['lon'])
                 }
             else:
-                print("No results found in the response")
+                # Sometimes the address is not found, so we try to extract the postcode and search for that which usually works although it's not as accurate
+                postcode = extract_postcode_from_address(address)
+                if postcode:
+                    url = f"https://nominatim.openstreetmap.org/search?q={quote(postcode)}&format=json&polygon_kml=1&addressdetails=1"
+                    result = requests.get(url=url, headers=headers)
+                    if result.text.strip():
+                        result_json = result.json()
+                        if result_json and len(result_json) > 0:
+                            return {
+                                "latitude":  float(result_json[0]['lat']),
+                                "longitude": float(result_json[0]['lon'])
+                            }
         else:
             print("Empty response received")
         return None
