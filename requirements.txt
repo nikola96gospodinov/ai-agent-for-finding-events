@@ -1,0 +1,8 @@
+langchain-ollama
+langchain-google-genai
+python-dotenv
+playwright
+mypy>=1.15.0
+types-requests
+types-python-dateutil
+types-setuptools 

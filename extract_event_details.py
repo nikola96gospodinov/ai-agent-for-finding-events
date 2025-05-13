@@ -5,6 +5,7 @@ import ast
 
 from custom_typings import EventDetails
 from utils import get_address_coordinates
+
 def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDetails | None:
     extract_details_template = """
         The web page content is as follows:

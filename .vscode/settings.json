@@ -1,0 +1,7 @@
+{
+  "python.linting.enabled": true,
+  "python.linting.mypyEnabled": true,
+  "python.linting.mypyPath": "mypy",
+  "python.linting.mypyArgs": ["--config-file=${workspaceFolder}/mypy.ini"],
+  "python.analysis.typeCheckingMode": "basic"
+}
