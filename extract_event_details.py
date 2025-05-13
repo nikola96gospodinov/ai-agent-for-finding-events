@@ -45,9 +45,9 @@ def extract_event_details(webpage_content: str, model: BaseChatModel) -> EventDe
             "date_of_event": "06-01-2025",
             "start_time": "10:00",
             "end_time": "12:00",
-            "location_of_event": {
+            "location_of_event": {{
                 "full_address": "123 Main St, EC1A 1BB, London, UK"
-            },
+            }},
             "price_of_event": "20",
             "event_format": "offline"
         }}

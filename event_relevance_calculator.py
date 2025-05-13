@@ -1,7 +1,7 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
-from custom_typings import UserProfile
 
+from custom_typings import UserProfile, Location
 from utils import calculate_distance
 
 class EventRelevanceCalculator:
@@ -110,26 +110,26 @@ class EventRelevanceCalculator:
             price_ratio = 1 - (price_of_event / budget)
             return 5 * price_ratio
         
-    def _calculate_distance_score(self) -> float:
+    def _calculate_distance_score(self, location_of_event: Location) -> float:
         if not self.user_profile["location"] or not self.user_profile["distance_threshold"]:
             return 0
         
-        if not self.event_details["location_of_event"] or not self.event_details["location_of_event"]["latitude"] or not self.event_details["location_of_event"]["longitude"]:
+        if not location_of_event or not location_of_event["latitude"] or not location_of_event["longitude"]:
             return 0
         
         event_coordinates = {
-            "latitude": self.event_details["location_of_event"]["latitude"],
-            "longitude": self.event_details["location_of_event"]["longitude"]
+            "latitude": location_of_event["latitude"],
+            "longitude": location_of_event["longitude"]
         }
         distance = calculate_distance(self.user_profile["location"], event_coordinates, self.user_profile["distance_threshold"]["unit"])
 
         distance_ratio = 1 - (distance / self.user_profile["distance_threshold"]["distance_threshold"])
-        return 5 * distance_ratio
+        return 5 * max(0, distance_ratio)  # Ensure we don't return negative scores
     
-    def calculate_event_relevance_score(self, webpage_content: str, price: int | float) -> float:
+    def calculate_event_relevance_score(self, webpage_content: str, price: int | float, location_of_event: Location) -> float:
         relevance_score = self._calculate_event_relevance_based_on_interests_and_goals(webpage_content)
         price_score = self._calculate_price_score(price, self.user_profile["budget"])
-        distance_score = self._calculate_distance_score()
+        distance_score = self._calculate_distance_score(location_of_event)
         
         total_score = relevance_score + price_score + distance_score
         return round(total_score, 1)

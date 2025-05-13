@@ -80,7 +80,7 @@ async def check_event(event_link: str):
     is_compatible = event_disqualifier.check_compatibility(event_details)
 
     if is_compatible:
-        event_relevance_score = event_relevance_calculator.calculate_event_relevance_score(webpage_content, event_details["price_of_event"])
+        event_relevance_score = event_relevance_calculator.calculate_event_relevance_score(webpage_content, event_details["price_of_event"], event_details["location_of_event"])
         print(f"Event relevance score: {event_relevance_score}")
         return {
             "event_link": event_link,
