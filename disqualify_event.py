@@ -124,9 +124,6 @@ class EventDisqualifier:
                 "willingness_for_online": self.user_profile["willingness_for_online"],
                 "exclude_times": self.user_profile["excluded_times"]
             })
-        
-        print("Event suitability:")
-        print(response)
 
         # Extract the first word from the response and check if it's "true"
         if isinstance(response, str):
