@@ -55,58 +55,57 @@ user_profile: UserProfile = {
             "start_date": datetime(2025, 4, 1),
             "end_date": datetime(2025, 12, 31)
         },
-        "interests": ["technology", "coding", "JavaScript", "Python", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
+        "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
         "goals": ["network professionally", "make new friends", "find a business partner"],
         "occupation": "software engineer"
     }
 
 search_keywords = get_search_keywords(user_profile, model)
-print(search_keywords)
-# event_disqualifier = EventDisqualifier(user_profile, model)
-# event_relevance_calculator = EventRelevanceCalculator(model, user_profile)
+event_disqualifier = EventDisqualifier(user_profile, model)
+event_relevance_calculator = EventRelevanceCalculator(model, user_profile)
 
-# async def check_event(event_link: str):
-#     print(f"Checking event: {event_link}")
+async def check_event(event_link: str):
+    print(f"Checking event: {event_link}")
 
-#     webpage_content = await scrap_page(event_link)
+    webpage_content = await scrap_page(event_link)
 
-#     event_details = extract_event_details(webpage_content, model)
+    event_details = extract_event_details(webpage_content, model)
     
-#     if event_details is None:
-#         print("Event is either sold out or not available.")
-#         return None
+    if event_details is None:
+        print("Event is either sold out or not available.")
+        return None
 
-#     is_compatible = event_disqualifier.check_compatibility(event_details)
+    is_compatible = event_disqualifier.check_compatibility(event_details)
 
-#     if is_compatible:
-#         event_relevance_score = event_relevance_calculator.calculate_event_relevance_score(webpage_content, event_details)
-#         print(f"Event relevance score: {event_relevance_score}")
-#         return {
-#             "event_link": event_link,
-#             "relevance": event_relevance_score,
-#             "title": event_details["title"]
-#         }
-#     else:
-#         print("Event is not compatible with the user's profile and/or preferences.")
-#         return None
+    if is_compatible:
+        event_relevance_score = event_relevance_calculator.calculate_event_relevance_score(webpage_content, event_details)
+        print(f"Event relevance score: {event_relevance_score}")
+        return {
+            "event_link": event_link,
+            "relevance": event_relevance_score,
+            "title": event_details["title"]
+        }
+    else:
+        print("Event is not compatible with the user's profile and/or preferences.")
+        return None
 
-# async def main():
-#     event_links = await get_event_links(search_keywords)
+async def main():
+    event_links = await get_event_links(search_keywords)
 
-#     events = []
-#     for event_link in event_links:
-#         try:
-#             event = await check_event(event_link)
-#             if event is not None:
-#                 events.append(event)
-#         except Exception as e:
-#             print(f"Error checking event: {e}")
+    events = []
+    for event_link in event_links:
+        try:
+            event = await check_event(event_link)
+            if event is not None:
+                events.append(event)
+        except Exception as e:
+            print(f"Error checking event: {e}")
 
-#     events = sorted(events, key=lambda x: x["relevance"], reverse=True)
-#     events = remove_duplicates_based_on_title(events)
+    events = sorted(events, key=lambda x: x["relevance"], reverse=True)
+    events = remove_duplicates_based_on_title(events)
     
-#     for event in events:
-#         print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}\n")
+    for event in events:
+        print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}\n")
 
-# if __name__ == "__main__":
-#     asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
