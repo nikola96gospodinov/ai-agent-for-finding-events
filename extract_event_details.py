@@ -77,17 +77,20 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         event_details = event_details.replace("```python", "").replace("```", "")
     
     try:
-        event_details_result: EventDetails | None = ast.literal_eval(event_details)
+        if isinstance(event_details, str):
+            event_details_result: EventDetails | None = ast.literal_eval(event_details)
+        else:
+            event_details_result = None
     except (SyntaxError, ValueError):
         event_details_result = None
 
-    if event_details_result and event_details_result.get("location_of_event"):
-        coordinates = get_address_coordinates(event_details_result["location_of_event"]["full_address"])
-        if coordinates:
+    if event_details_result and event_details_result.get("location_of_event") and event_details_result["location_of_event"].get("full_address"):
+        coordinates = get_address_coordinates(event_details_result["location_of_event"].get("full_address"))
+        if coordinates and "latitude" in coordinates and "longitude" in coordinates:
             event_details_result["location_of_event"]["latitude"] = coordinates["latitude"]
             event_details_result["location_of_event"]["longitude"] = coordinates["longitude"]
         else:
-            event_details_result["location_of_event"] = None
+            event_details_result["location_of_event"]["full_address"] = None
 
     print("Event details:")
     print(event_details_result)

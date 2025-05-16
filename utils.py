@@ -20,7 +20,10 @@ def extract_postcode_from_address(address: str) -> str | None:
     match = re.search(postcode_pattern, address)
     return match.group(0) if match else None
 
-def get_address_coordinates(address: str) -> Location | None:
+def get_address_coordinates(address: str | None) -> Location | None:
+    if address is None:
+        return None
+
     url = f"https://nominatim.openstreetmap.org/search?q={quote(address)}&format=json&polygon_kml=1&addressdetails=1"
     headers = {
         'User-Agent': 'EventDisqualifierApp/1.0',  # Required by Nominatim's usage policy
@@ -63,11 +66,20 @@ def calculate_distance(loc1: Location, loc2: Location, distance_unit: DistanceUn
     # Earth's radius in kilometers
     R = 6371.0
     
-    # Convert latitude and longitude from degrees to radians
-    lat1_rad = math.radians(loc1["latitude"])
-    lon1_rad = math.radians(loc1["longitude"])
-    lat2_rad = math.radians(loc2["latitude"])
-    lon2_rad = math.radians(loc2["longitude"])
+    lat1 = loc1.get("latitude")
+    lon1 = loc1.get("longitude")
+    lat2 = loc2.get("latitude")
+    lon2 = loc2.get("longitude")
+    
+    if None in (lat1, lon1, lat2, lon2):
+        return float('inf')
+    
+    assert lat1 is not None and lon1 is not None and lat2 is not None and lon2 is not None
+    
+    lat1_rad = math.radians(lat1)
+    lon1_rad = math.radians(lon1)
+    lat2_rad = math.radians(lat2)
+    lon2_rad = math.radians(lon2)
     
     # Difference in coordinates
     dlat = lat2_rad - lat1_rad

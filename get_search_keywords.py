@@ -41,5 +41,12 @@ def get_search_keywords(user_profile: UserProfile, model: BaseChatModel) -> List
 
     if hasattr(response, 'content'):
         response = response.content
+    elif isinstance(response, str):
+        response = response
+    elif isinstance(response, list):
+        response = ", ".join(str(item) for item in response)
+    else:
+        response = str(response)
     
-    return response.split(", ")
+    response_str = str(response)
+    return [keyword.strip() for keyword in response_str.split(",")]
