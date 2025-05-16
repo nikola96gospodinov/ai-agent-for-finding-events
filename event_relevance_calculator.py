@@ -1,5 +1,7 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import BaseMessage
+from typing import List, Dict
 
 from custom_typings import UserProfile, Location, EventDetails
 from utils import calculate_distance
@@ -80,14 +82,23 @@ class EventRelevanceCalculator:
             "webpage_content": webpage_content
         })
 
-        # Handle AIMessage if necessary
-        if hasattr(result, 'content'):
-            result = result.content
-
         print(f"Event relevance score: {result}")
 
         score_text = "0"
-        for word in result.split():
+        # Handle different possible result types
+        if isinstance(result, str):
+            text_to_parse = result
+        elif isinstance(result, BaseMessage):
+            text_to_parse = result.content
+        elif isinstance(result, (List, Dict)):
+            text_to_parse = str(result)
+        else:
+            print(f"Unexpected result type: {type(result)}")
+            return 0
+
+        # Convert to string to ensure we can split
+        text_to_parse = str(text_to_parse)
+        for word in text_to_parse.split():
             cleaned_word = ''.join(c for c in word if c.isdigit() or c == '.')
             if cleaned_word and cleaned_word[0].isdigit():
                 if cleaned_word.count('.') <= 1:
@@ -115,17 +126,22 @@ class EventRelevanceCalculator:
         if not self.user_profile["location"] or not self.user_profile["distance_threshold"]:
             return 0
         
-        if not location_of_event or not location_of_event["latitude"] or not location_of_event["longitude"]:
+        if not location_of_event or not location_of_event.get("latitude") or not location_of_event.get("longitude"):
             return 0
         
-        event_coordinates = {
-            "latitude": location_of_event["latitude"],
-            "longitude": location_of_event["longitude"]
+        latitude = location_of_event.get("latitude")
+        longitude = location_of_event.get("longitude")
+        assert latitude is not None and longitude is not None
+        
+        event_coordinates: Location = {
+            "latitude": float(latitude),
+            "longitude": float(longitude)
         }
+        
         distance = calculate_distance(self.user_profile["location"], event_coordinates, self.user_profile["distance_threshold"]["unit"])
 
         distance_ratio = 1 - (distance / self.user_profile["distance_threshold"]["distance_threshold"])
-        return 5 * max(0, distance_ratio)  # Ensure we don't return negative scores
+        return 5 * max(0, distance_ratio)
     
     def calculate_event_relevance_score(self, webpage_content: str | None, event_details: EventDetails) -> float:
         if webpage_content is None:

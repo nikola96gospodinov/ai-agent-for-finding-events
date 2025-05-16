@@ -2,8 +2,8 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime
 
-from custom_typings import EventDetails, UserProfile
-from utils import get_address_coordinates, calculate_distance
+from custom_typings import EventDetails, UserProfile, Location
+from utils import calculate_distance
 
 class EventDisqualifier:
     def __init__(self, user_profile: UserProfile, model: BaseChatModel):
@@ -30,13 +30,17 @@ class EventDisqualifier:
             return True
             
         event_location = event_details["location_of_event"]
-        if not event_location["latitude"] or not event_location["longitude"]:
+        if not event_location.get("latitude") or not event_location.get("longitude"):
             # If event has no coordinates, we can't calculate distance
             return True
+        
+        latitude = event_location.get("latitude")
+        longitude = event_location.get("longitude")
+        assert latitude is not None and longitude is not None
             
-        event_coordinates = {
-            "latitude": event_location["latitude"],
-            "longitude": event_location["longitude"]
+        event_coordinates: Location = {
+            "latitude": latitude,
+            "longitude": longitude
         }
         distance = calculate_distance(loc1=self.user_profile["location"], loc2=event_coordinates, distance_unit=self.user_profile["distance_threshold"]["unit"])
             
@@ -55,7 +59,7 @@ class EventDisqualifier:
         timeframe_end_date = self.user_profile["timeframe"]["end_date"]
         
         event_date_str = event_details["date_of_event"]
-        event_date = None
+        event_date: datetime
         if event_date_str:
             event_date = datetime.strptime(event_date_str, "%d-%m-%Y")
         
@@ -121,13 +125,21 @@ class EventDisqualifier:
                 "exclude_times": self.user_profile["excluded_times"]
             })
         
-        # Handle AIMessage if necessary
-        if hasattr(response, 'content'):
-            response = response.content
-        
         print("Event suitability:")
         print(response)
 
         # Extract the first word from the response and check if it's "true"
-        first_word = response.split()[0].strip().lower()
+        if isinstance(response, str):
+            response_text = response
+        elif isinstance(response, (list, dict)):
+            response_text = str(response)
+        else:
+            response_text = str(response)
+
+        try:
+            first_word = response_text.split()[0].strip().lower()
+        except (AttributeError, IndexError):
+            print("Warning: Could not parse response, defaulting to False")
+            return False
+
         return first_word == "true"
