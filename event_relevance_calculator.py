@@ -82,6 +82,9 @@ class EventRelevanceCalculator:
             "webpage_content": webpage_content
         })
 
+        if hasattr(result, 'content'):
+            result = result.content
+
         print(f"Event relevance score: {result}")
 
         score_text = "0"
