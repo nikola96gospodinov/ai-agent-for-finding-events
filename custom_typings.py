@@ -6,9 +6,13 @@ class LocationOfEvent(TypedDict, total=False):
     longitude: float
     full_address: str | None
 
+class AgeRange(TypedDict):
+    min_age: int | None
+    max_age: int | None
+
 class EventDetails(TypedDict):
     title: str
-    age_range: str | None
+    age_range: AgeRange | None
     gender_bias: str | None
     sexual_orientation_bias: str | None
     relationship_status_bias: str | None

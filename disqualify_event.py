@@ -20,6 +20,8 @@ class EventDisqualifier:
             return False
         if not self._is_event_within_time_commitment(event_details):
             return False
+        if not self._is_event_within_acceptable_age_range(event_details):
+            return False
             
         # Only check the expensive LLM operation if all other checks pass - this improves performance
         return self._is_event_suitable_for_user(event_details)
@@ -95,6 +97,21 @@ class EventDisqualifier:
 
         return True
     
+    def _is_event_within_acceptable_age_range(self, event_details: EventDetails) -> bool:
+        AGE_MARGIN = 2  # 2-year margin of tolerance
+        
+        if event_details["age_range"]:
+            if event_details["age_range"]["min_age"]:
+                if event_details["age_range"]["min_age"] > self.user_profile["age"] + AGE_MARGIN:
+                    print("Event is outside the user's acceptable age range")
+                    return False
+            if event_details["age_range"]["max_age"]:
+                if event_details["age_range"]["max_age"] < self.user_profile["age"] - AGE_MARGIN:
+                    print("Event is outside the user's acceptable age range")
+                    return False
+
+        return True
+
     def _is_event_suitable_for_user(self, event_details: EventDetails) -> bool:
         prompt_template = """
             You are a helpful assistant that determines if an event is appropriate for a user. If it is appropriate, you should return "True". If it is not, you should return "False".
@@ -102,7 +119,6 @@ class EventDisqualifier:
             
             Here are the event details: {event_details}
 
-            The user is {age} years old. Do not use overly broad age ranges. For example, 28 to 49 is not acceptable. Allow some flexibility. For example, if the user is 28 or 41 but the event is for people in their 30s, it is acceptable.
             The user is {gender}. Return "False" if the event is not suitable for the user's gender.
             The user is {sexual_orientation}. Return "False" if the event is not suitable for the user's sexual orientation.
             The user is {relationship_status}. Return "False" if the event is not suitable for the user's relationship status.
@@ -117,7 +133,6 @@ class EventDisqualifier:
         chain = prompt | self.model
         response = chain.invoke({
                 "event_details": event_details,
-                "age": self.user_profile["age"],
                 "gender": self.user_profile["gender"],
                 "sexual_orientation": self.user_profile["sexual_orientation"],
                 "relationship_status": self.user_profile["relationship_status"],
