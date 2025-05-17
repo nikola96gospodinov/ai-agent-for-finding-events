@@ -22,6 +22,7 @@ class EventDetails(TypedDict):
     location_of_event: LocationOfEvent
     price_of_event: float | int
     event_format: str | None
+    is_sold_out: bool | None
 
 class Timeframe(TypedDict):
     start_date: datetime

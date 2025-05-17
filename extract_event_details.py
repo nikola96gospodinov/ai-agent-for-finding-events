@@ -14,10 +14,6 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         The web page content is as follows:
         {webpage_content}
 
-        Before extracting the details, check if the event is sold out, out of spaces, or on the same day as today. Today is {current_date}.
-        If any of these conditions are met, the overall response should be set to None and there will be no need for details to be extracted.
-        "Sales ending soon", "Sales end soon", "Limited spaces left", "Limited availability", "Limited availability left", or similar phrases are not a sign of a sold out event and details should be extracted.
-
         Extract the details of the event from the web page.
         The details that are needed are:
         - Title of the event
@@ -37,6 +33,7 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         - Location of the event - be as specific as possible. For example, "123 Main St, EC1A 1BB, London, UK" is more specific than "London, UK". If the street is not mentioned, then the postcode is the most important thing. If it says TBC, then return None for the location.
         - Price of the event - just put the number like 20, 50, 100, etc. in either float or int format without the currency symbol. If an event is free, then the price should be 0 instead of None
         - Whether the event is online, in person or both. Mentions of Zoom, Online, Virtual, etc. should be considered online unless it's a combination of in person and online, in which case it should be "both".
+        - Whether the event is sold out or out of spaces. Note that "Sales ending soon", "Sales end soon", "Limited spaces left", "Limited availability", "Limited availability left", or similar phrases are not a sign of a sold out event and details should be extracted.
 
         The response should be None if there is something to indicate so, or a Python dictionary:
         Example:
@@ -53,7 +50,8 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
                 "full_address": "123 Main St, EC1A 1BB, London, UK"
             }},
             "price_of_event": "20",
-            "event_format": "offline"
+            "event_format": "offline",
+            "is_sold_out": False
         }}
         Don't do any formatting. Just return the Python dictionary as plain text. Under any circumstances, don't use ```python or ``` in the response.
 
@@ -65,24 +63,24 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
 
     event_details = event_details_chain.invoke({
         "webpage_content": webpage_content,
-        "current_year": datetime.now().year,
-        "current_date": datetime.now().strftime("%d-%m-%Y")
+        "current_year": datetime.now().year
     })
 
     if hasattr(event_details, 'content'):
         event_details = event_details.content
+
+    if isinstance(event_details, str):
+        text_to_parse = event_details
+    elif isinstance(event_details, (list, dict)):
+        text_to_parse = str(event_details)
+
+    event_details = str(text_to_parse)
     
     # Sometimes the model doesn't play along
-    if isinstance(event_details, str) and (event_details.startswith("```python") or event_details.endswith("```")):
+    if (event_details.startswith("```python") or event_details.endswith("```")):
         event_details = event_details.replace("```python", "").replace("```", "")
     
-    try:
-        if isinstance(event_details, str):
-            event_details_result: EventDetails | None = ast.literal_eval(event_details)
-        else:
-            event_details_result = None
-    except (SyntaxError, ValueError):
-        event_details_result = None
+    event_details_result: EventDetails | None = ast.literal_eval(event_details)
 
     if event_details_result and event_details_result.get("location_of_event") and event_details_result["location_of_event"].get("full_address"):
         coordinates = get_address_coordinates(event_details_result["location_of_event"].get("full_address"))

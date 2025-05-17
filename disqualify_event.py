@@ -12,6 +12,8 @@ class EventDisqualifier:
 
     def check_compatibility(self, event_details: EventDetails) -> bool:
         # Check all quick conditions first
+        if not self._is_event_sold_out(event_details):
+            return False
         if not self._is_event_within_acceptable_distance(event_details):
             return False
         if not self._is_event_within_acceptable_timeframe(event_details):
@@ -25,6 +27,13 @@ class EventDisqualifier:
             
         # Only check the expensive LLM operation if all other checks pass - this improves performance
         return self._is_event_suitable_for_user(event_details)
+    
+    def _is_event_sold_out(self, event_details: EventDetails) -> bool:
+        if event_details["is_sold_out"]:
+            print("Event is sold out")
+            return False
+        
+        return True
 
     def _is_event_within_acceptable_distance(self, event_details: EventDetails) -> bool:
         # If user has no location or distance threshold, distance is not a factor
@@ -114,17 +123,21 @@ class EventDisqualifier:
 
     def _is_event_suitable_for_user(self, event_details: EventDetails) -> bool:
         prompt_template = """
-            You are a helpful assistant that determines if an event is appropriate for a user. If it is appropriate, you should return "True". If it is not, you should return "False".
-            If any of the following conditions are not met, return "False" regardless of the other conditions. If an event characteristic is missing (it's None), it's not a disqualifier so move on to the next condition.
-            
+            You are a helpful assistant that determines if an event is appropriate for a user. Your goal is to be inclusive and only disqualify events that are explicitly unsuitable for the user.
+
             Here are the event details: {event_details}
 
-            The user is {gender}. Return "False" if the event is not suitable for the user's gender.
-            The user is {sexual_orientation}. Return "False" if the event is not suitable for the user's sexual orientation.
-            The user is {relationship_status}. Return "False" if the event is not suitable for the user's relationship status.
-            The user is {willingness_for_online} to go to online events. Return "False" if the event is online and the user is unwilling to go to online events. If an event is both online and offline, it's not a disqualifier.
-            The user doesn't want to attend events {exclude_times}. All other times are fine.
+            Consider the following rules:
+            1. If an event characteristic is missing (None), assume it's suitable for everyone
+            2. Only return "False" if there is a clear mismatch between the event requirements and user characteristics
+            3. When in doubt, return "True" to give the user more options
 
+            Check these specific conditions:
+            - Gender: The user is {gender}. Only return "False" if the event explicitly excludes this gender
+            - Sexual Orientation: The user is {sexual_orientation}. Only return "False" if the event explicitly excludes this orientation
+            - Relationship Status: The user is {relationship_status}. Only return "False" if the event explicitly requires a different status
+            - Online Events: The user is {willingness_for_online} to attend online events. Only return "False" if the event is online-only and user is unwilling or vice versa
+            - Time Restrictions: The user doesn't want to attend events {exclude_times}. Only return "False" if the event time matches these excluded times
 
             Your response should be "True" or "False" and then on a new line, explain your reasoning.
         """
@@ -136,7 +149,7 @@ class EventDisqualifier:
                 "gender": self.user_profile["gender"],
                 "sexual_orientation": self.user_profile["sexual_orientation"],
                 "relationship_status": self.user_profile["relationship_status"],
-                "willingness_for_online": self.user_profile["willingness_for_online"],
+                "willingness_for_online": "willing" if self.user_profile["willingness_for_online"] == True else "unwilling",
                 "exclude_times": self.user_profile["excluded_times"]
             })
         
@@ -147,16 +160,8 @@ class EventDisqualifier:
         print("Event suitability:")
         print(response)
 
-        # Extract the first word from the response and check if it's "true"
-        if isinstance(response, str):
-            response_text = response
-        elif isinstance(response, (list, dict)):
-            response_text = str(response)
-        else:
-            response_text = str(response)
-
         try:
-            first_word = response_text.split()[0].strip().lower()
+            first_word = str(response).split()[0].strip().lower()
         except (AttributeError, IndexError):
             print("Warning: Could not parse response, defaulting to False")
             return False
