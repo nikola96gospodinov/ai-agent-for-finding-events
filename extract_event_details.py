@@ -3,7 +3,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 import ast
 
-from custom_typings import EventDetails
+from custom_typings import EventDetails, gender_bias_options
 from utils import get_address_coordinates
 
 def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> EventDetails | None:
@@ -18,7 +18,7 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         The details that are needed are:
         - Title of the event
         - Age range - return the age range in the following format: {{"min_age": 20, "max_age": 30}}. If the age range is not mentioned, then return None. If either the min_age or max_age is not mentioned, then return None for that value. 18+ indicates a minimum age of 18 but no maximum age. 30-40 indicates a minimum age of 30 and a maximum age of 40.
-        - Gender bias - return "women only", "men only", or other specific gender designation if:
+        - Gender bias - return a list of gender bias options. The options are: {gender_bias_options}. For example it could be ["female", "male", "non-binary"] or just ["female"]. If there are no gender biases, then it should be None.
             * The event explicitly states it's for a specific gender
             * The event description uses gendered language throughout (e.g., "ladies", "sisterhood", "brotherhood")
             * The event focuses on experiences unique to a specific gender
@@ -40,7 +40,7 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         {{
             "title": "Event Title",
             "age_range": {{"min_age": 20, "max_age": 30}},
-            "gender_bias": "women only",
+            "gender_bias": ["female],
             "sexual_orientation_bias": "LGBTQ+ only",
             "relationship_status_bias": "singles only",
             "date_of_event": "06-01-2025",
@@ -63,7 +63,8 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
 
     event_details = event_details_chain.invoke({
         "webpage_content": webpage_content,
-        "current_year": datetime.now().year
+        "current_year": datetime.now().year,
+        "gender_bias_options": gender_bias_options
     })
 
     if hasattr(event_details, 'content'):
