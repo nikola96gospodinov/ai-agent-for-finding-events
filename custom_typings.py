@@ -2,6 +2,7 @@ from typing import TypedDict, Literal
 from datetime import datetime
 
 gender_bias_options = Literal["male", "female", "non-binary", "other"]
+sexual_orientation_bias_options = Literal["straight", "lesbian", "gay", "bisexual", "transgender", "other"]
 
 class LocationOfEvent(TypedDict, total=False):
     latitude: float
@@ -16,7 +17,7 @@ class EventDetails(TypedDict):
     title: str
     age_range: AgeRange | None
     gender_bias: list[gender_bias_options] | None
-    sexual_orientation_bias: str | None
+    sexual_orientation_bias: list[sexual_orientation_bias_options] | None
     relationship_status_bias: str | None
     date_of_event: str | None
     start_time: str | None
@@ -47,7 +48,7 @@ class UserProfile(TypedDict):
 
     age: int
     gender: gender_bias_options
-    sexual_orientation: Literal["straight", "lesbian", "gay", "bisexual", "transgender", "other"] 
+    sexual_orientation: sexual_orientation_bias_options
     relationship_status: Literal["single", "in a relationship"] 
     willingness_to_pay: bool 
     budget: Literal[0, 10, 20, 50, 100, 200, 500, 1000] 

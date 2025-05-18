@@ -26,6 +26,8 @@ class EventDisqualifier:
             return False
         if not self._is_event_suitable_for_gender(event_details):
             return False
+        if not self._is_event_suitable_for_sexual_orientation(event_details):
+            return False
             
         # Only check the expensive LLM operation if all other checks pass - this improves performance
         return self._is_event_suitable_for_user(event_details)
@@ -130,6 +132,14 @@ class EventDisqualifier:
                 return False
 
         return True
+    
+    def _is_event_suitable_for_sexual_orientation(self, event_details: EventDetails) -> bool:
+        if event_details["sexual_orientation_bias"] and self.user_profile["sexual_orientation"]:
+            if self.user_profile["sexual_orientation"] not in event_details["sexual_orientation_bias"]:
+                print("Event is not suitable for the user's sexual orientation")
+                return False
+
+        return True
 
     def _is_event_suitable_for_user(self, event_details: EventDetails) -> bool:
         prompt_template = """
@@ -143,7 +153,6 @@ class EventDisqualifier:
             3. When in doubt, return "True" to give the user more options
 
             Check these specific conditions:
-            - Sexual Orientation: The user is {sexual_orientation}. Only return "False" if the event explicitly excludes this orientation
             - Relationship Status: The user is {relationship_status}. Only return "False" if the event explicitly requires a different status
             - Online Events: The user is {willingness_for_online} to attend online events. Only return "False" if the event is online-only and user is unwilling or vice versa
             - Time Restrictions: The user doesn't want to attend events {exclude_times}. Only return "False" if the event time matches these excluded times
@@ -155,7 +164,6 @@ class EventDisqualifier:
         chain = prompt | self.model
         response = chain.invoke({
                 "event_details": event_details,
-                "sexual_orientation": self.user_profile["sexual_orientation"],
                 "relationship_status": self.user_profile["relationship_status"],
                 "willingness_for_online": "willing" if self.user_profile["willingness_for_online"] == True else "unwilling",
                 "exclude_times": self.user_profile["excluded_times"]
