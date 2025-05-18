@@ -6,9 +6,8 @@ from custom_typings import EventDetails, UserProfile, Location
 from utils import calculate_distance
 
 class EventDisqualifier:
-    def __init__(self, user_profile: UserProfile, model: BaseChatModel):
+    def __init__(self, user_profile: UserProfile):
         self.user_profile = user_profile
-        self.model = model
 
     def check_compatibility(self, event_details: EventDetails) -> bool:
         # Check all quick conditions first
@@ -22,13 +21,11 @@ class EventDisqualifier:
             self._is_event_suitable_for_gender,
             self._is_event_suitable_for_sexual_orientation,
             self._is_event_suitable_for_relationship_status,
-            self._is_event_suitable_for_event_format
+            self._is_event_suitable_for_event_format,
+            self._is_event_within_acceptable_times
         ]
         
-        if all(check(event_details) for check in checks):
-            return self._is_event_suitable_for_user(event_details)
-        else:
-            return False
+        return all(check(event_details) for check in checks)
     
     def _is_event_sold_out(self, event_details: EventDetails) -> bool:
         if event_details["is_sold_out"]:
@@ -157,42 +154,36 @@ class EventDisqualifier:
                 return False
 
         return True
+    
+    def _is_event_within_acceptable_times(self, event_details: EventDetails) -> bool:
+        is_weekday = event_details["date_of_event"] and datetime.strptime(event_details["date_of_event"], "%d-%m-%Y").weekday() < 5
 
-    def _is_event_suitable_for_user(self, event_details: EventDetails) -> bool:
-        prompt_template = """
-            You are a helpful assistant that determines if an event is appropriate for a user. Your goal is to be inclusive and only disqualify events that are explicitly unsuitable for the user.
+        if is_weekday:
+            if event_details["start_time"]:
+                start_time = datetime.strptime(event_details["start_time"], "%H:%M")
+                start_time_user = datetime.strptime(self.user_profile["acceptable_times"]["weekdays"]["start"], "%H:%M")
+                if start_time < start_time_user:
+                    print("Event is before the user's acceptable times")
+                    return False
+            if event_details["end_time"]:
+                end_time = datetime.strptime(event_details["end_time"], "%H:%M")
+                end_time_user = datetime.strptime(self.user_profile["acceptable_times"]["weekdays"]["end"], "%H:%M")
+                if end_time > end_time_user:
+                    print("Event is after the user's acceptable times")
+                    return False
 
-            Here are the event details: {event_details}
+        else:
+            if event_details["start_time"]:
+                start_time = datetime.strptime(event_details["start_time"], "%H:%M")
+                start_time_user = datetime.strptime(self.user_profile["acceptable_times"]["weekends"]["start"], "%H:%M")
+                if start_time < start_time_user:
+                    print("Event is before the user's acceptable times")
+                    return False
+            if event_details["end_time"]:
+                end_time = datetime.strptime(event_details["end_time"], "%H:%M")
+                end_time_user = datetime.strptime(self.user_profile["acceptable_times"]["weekends"]["end"], "%H:%M")
+                if end_time > end_time_user:
+                    print("Event is after the user's acceptable times")
+                    return False
 
-            Consider the following rules:
-            1. If an event characteristic is missing (None), assume it's suitable for everyone
-            2. Only return "False" if there is a clear mismatch between the event requirements and user characteristics
-            3. When in doubt, return "True" to give the user more options
-
-            Check these specific conditions:
-            - Time Restrictions: The user doesn't want to attend events {exclude_times}. Only return "False" if the event time matches these excluded times
-
-            Your response should be "True" or "False" and then on a new line, explain your reasoning.
-        """
-
-        prompt = ChatPromptTemplate.from_template(prompt_template)
-        chain = prompt | self.model
-        response = chain.invoke({
-                "event_details": event_details,
-                "exclude_times": self.user_profile["excluded_times"]
-            })
-        
-        # Handle AIMessage if necessary
-        if hasattr(response, 'content'):
-            response = response.content
-        
-        print("Event suitability:")
-        print(response)
-
-        try:
-            first_word = str(response).split()[0].strip().lower()
-        except (AttributeError, IndexError):
-            print("Warning: Could not parse response, defaulting to False")
-            return False
-
-        return first_word == "true"
+        return True

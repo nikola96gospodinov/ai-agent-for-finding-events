@@ -41,7 +41,16 @@ user_profile: UserProfile = {
         "willingness_to_pay": True,
         "budget": 50,
         "willingness_for_online": False,
-        "excluded_times": ["after 22:00", "before 9:00", "9-5 weekdays"],
+        "acceptable_times": {
+            "weekdays": {
+                "start": "17:00",
+                "end": "22:00"
+            },
+            "weekends": {
+                "start": "8:00",
+                "end": "23:00"
+            }
+        },
         "location": {
             "latitude": 51.5253263,
             "longitude": -0.1015115
@@ -61,7 +70,7 @@ user_profile: UserProfile = {
     }
 
 search_keywords = get_search_keywords(user_profile, model)
-event_disqualifier = EventDisqualifier(user_profile, model)
+event_disqualifier = EventDisqualifier(user_profile)
 event_relevance_calculator = EventRelevanceCalculator(model, user_profile)
 
 async def check_event(event_link: str):

@@ -43,6 +43,14 @@ class Location(TypedDict, total=False):
     latitude: float
     longitude: float
 
+class StartEndTime(TypedDict):
+    start: str
+    end: str
+
+class AcceptableTimes(TypedDict):
+    weekdays: StartEndTime
+    weekends: StartEndTime
+
 class UserProfile(TypedDict):
     interests: list[str]
     goals: list[str]
@@ -55,7 +63,7 @@ class UserProfile(TypedDict):
     willingness_to_pay: bool 
     budget: Literal[0, 10, 20, 50, 100, 200, 500, 1000] 
     willingness_for_online: bool 
-    excluded_times: list[str] 
+    acceptable_times: AcceptableTimes
     location: Location 
     distance_threshold: DistanceThreshold 
     time_commitment_in_minutes: int 
