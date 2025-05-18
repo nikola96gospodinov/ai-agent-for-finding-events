@@ -3,7 +3,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 import ast
 
-from custom_typings import EventDetails, gender_bias_options, sexual_orientation_bias_options
+from custom_typings import EventDetails, gender_bias_options, sexual_orientation_bias_options, relationship_status_bias_options
 from utils import get_address_coordinates
 
 def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> EventDetails | None:
@@ -25,8 +25,8 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
             * The event is hosted by a gender-specific organization (e.g., "Women in Tech")
             * Marketing materials exclusively show one gender
             * The event addresses topics that are explicitly framed as gender-specific
-        - Sexual orientation bias returns a list of options: The options are: {sexual_orientation_bias_options} - for example if the event is tailored to LGBTQ+ only, then the sexual orientation bias should be ["lesbian", "gay", "bisexual", "transgender"]. If there are no sexual orientation bias, then it should be None
-        - Relationship status bias - for example if the event is tailored to singles only, then the relationship status bias should be "singles only". If there are no relationship status bias, then it should be None. Party nights are generally tailored to singles.
+        - Sexual orientation bias returns a list of options. The options are: {sexual_orientation_bias_options} - for example if the event is tailored to LGBTQ+ only, then the sexual orientation bias should be ["lesbian", "gay", "bisexual", "transgender"]. If there are no sexual orientation bias, then it should be None
+        - Relationship status bias returns a list of options. The options are: {relationship_status_bias_options} - for example if the event is tailored to singles only, then the relationship status bias should be ["single"]. If there are no relationship status bias, then it should be None. Party nights are generally tailored to singles.
         - Date of the event - this should be in the following format: "DD-MM-YYYY". If the year of the event is not mentioned, then assume it's the current year - {current_year}. If there are multiple dates, then return the most relevant but never multiple dates. For example "14-01-2025 to 14-06-2025" should be "14-01-2025"
         - Start time of the event - this should be in the following format: "10:00", "22:00". Note that the time could be represented in many different ways on the page. 6, 6:00pm, 18:00 etc. but we need to extract the time in 24 hour format.
         - End time of the event - this should be in the following format: "10:00", "22:00". Note that the time could be represented in many different ways on the page. 6, 6:00pm, 18:00 etc. but we need to extract the time in 24 hour format.
@@ -65,11 +65,15 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         "webpage_content": webpage_content,
         "current_year": datetime.now().year,
         "gender_bias_options": gender_bias_options,
-        "sexual_orientation_bias_options": sexual_orientation_bias_options
+        "sexual_orientation_bias_options": sexual_orientation_bias_options,
+        "relationship_status_bias_options": relationship_status_bias_options
     })
 
     if hasattr(event_details, 'content'):
         event_details = event_details.content
+
+    print("Event details raw:")
+    print(event_details)
 
     if isinstance(event_details, str):
         text_to_parse = event_details
@@ -79,8 +83,8 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
     event_details = str(text_to_parse)
     
     # Sometimes the model doesn't play along
-    if (event_details.startswith("```python") or event_details.endswith("```")):
-        event_details = event_details.replace("```python", "").replace("```", "")
+    if (event_details.startswith("```python") or event_details.startswith("```json") or event_details.endswith("```")):
+        event_details = event_details.replace("```python", "").replace("```json", "").replace("```", "")
     
     event_details_result: EventDetails | None = ast.literal_eval(event_details)
 

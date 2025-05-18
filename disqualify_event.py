@@ -12,25 +12,22 @@ class EventDisqualifier:
 
     def check_compatibility(self, event_details: EventDetails) -> bool:
         # Check all quick conditions first
-        if not self._is_event_sold_out(event_details):
+        checks = [
+            self._is_event_sold_out,
+            self._is_event_within_acceptable_distance,
+            self._is_event_within_acceptable_timeframe,
+            self._is_event_within_acceptable_price_range,
+            self._is_event_within_time_commitment,
+            self._is_event_within_acceptable_age_range,
+            self._is_event_suitable_for_gender,
+            self._is_event_suitable_for_sexual_orientation,
+            self._is_event_suitable_for_relationship_status
+        ]
+        
+        if all(check(event_details) for check in checks):
+            return self._is_event_suitable_for_user(event_details)
+        else:
             return False
-        if not self._is_event_within_acceptable_distance(event_details):
-            return False
-        if not self._is_event_within_acceptable_timeframe(event_details):
-            return False
-        if not self._is_event_within_acceptable_price_range(event_details):
-            return False
-        if not self._is_event_within_time_commitment(event_details):
-            return False
-        if not self._is_event_within_acceptable_age_range(event_details):
-            return False
-        if not self._is_event_suitable_for_gender(event_details):
-            return False
-        if not self._is_event_suitable_for_sexual_orientation(event_details):
-            return False
-            
-        # Only check the expensive LLM operation if all other checks pass - this improves performance
-        return self._is_event_suitable_for_user(event_details)
     
     def _is_event_sold_out(self, event_details: EventDetails) -> bool:
         if event_details["is_sold_out"]:
@@ -140,6 +137,14 @@ class EventDisqualifier:
                 return False
 
         return True
+    
+    def _is_event_suitable_for_relationship_status(self, event_details: EventDetails) -> bool:
+        if event_details["relationship_status_bias"] and self.user_profile["relationship_status"]:
+            if self.user_profile["relationship_status"] not in event_details["relationship_status_bias"]:
+                print("Event is not suitable for the user's relationship status")
+                return False
+
+        return True
 
     def _is_event_suitable_for_user(self, event_details: EventDetails) -> bool:
         prompt_template = """
@@ -153,7 +158,6 @@ class EventDisqualifier:
             3. When in doubt, return "True" to give the user more options
 
             Check these specific conditions:
-            - Relationship Status: The user is {relationship_status}. Only return "False" if the event explicitly requires a different status
             - Online Events: The user is {willingness_for_online} to attend online events. Only return "False" if the event is online-only and user is unwilling or vice versa
             - Time Restrictions: The user doesn't want to attend events {exclude_times}. Only return "False" if the event time matches these excluded times
 
