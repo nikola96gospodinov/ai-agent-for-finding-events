@@ -21,7 +21,8 @@ class EventDisqualifier:
             self._is_event_within_acceptable_age_range,
             self._is_event_suitable_for_gender,
             self._is_event_suitable_for_sexual_orientation,
-            self._is_event_suitable_for_relationship_status
+            self._is_event_suitable_for_relationship_status,
+            self._is_event_suitable_for_event_format
         ]
         
         if all(check(event_details) for check in checks):
@@ -145,6 +146,17 @@ class EventDisqualifier:
                 return False
 
         return True
+    
+    def _is_event_suitable_for_event_format(self, event_details: EventDetails) -> bool:
+        if event_details["event_format"] and self.user_profile["willingness_for_online"]:
+            if self.user_profile["willingness_for_online"] == False and "online" in event_details["event_format"]:
+                print("Event is online and the user is unwilling to attend online events")
+                return False
+            if self.user_profile["willingness_for_online"] == True and "offline" in event_details["event_format"]:
+                print("Event is offline and the user is unwilling to attend offline events")
+                return False
+
+        return True
 
     def _is_event_suitable_for_user(self, event_details: EventDetails) -> bool:
         prompt_template = """
@@ -158,7 +170,6 @@ class EventDisqualifier:
             3. When in doubt, return "True" to give the user more options
 
             Check these specific conditions:
-            - Online Events: The user is {willingness_for_online} to attend online events. Only return "False" if the event is online-only and user is unwilling or vice versa
             - Time Restrictions: The user doesn't want to attend events {exclude_times}. Only return "False" if the event time matches these excluded times
 
             Your response should be "True" or "False" and then on a new line, explain your reasoning.
@@ -168,8 +179,6 @@ class EventDisqualifier:
         chain = prompt | self.model
         response = chain.invoke({
                 "event_details": event_details,
-                "relationship_status": self.user_profile["relationship_status"],
-                "willingness_for_online": "willing" if self.user_profile["willingness_for_online"] == True else "unwilling",
                 "exclude_times": self.user_profile["excluded_times"]
             })
         

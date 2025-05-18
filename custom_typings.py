@@ -4,6 +4,7 @@ from datetime import datetime
 gender_bias_options = Literal["male", "female", "non-binary", "other"]
 sexual_orientation_bias_options = Literal["straight", "lesbian", "gay", "bisexual", "transgender", "other"]
 relationship_status_bias_options = Literal["single", "in a relationship", "married", "divorced", "widowed", "polygamous", "other"]
+event_format_options = Literal["offline", "online"]
 
 class LocationOfEvent(TypedDict, total=False):
     latitude: float
@@ -25,7 +26,7 @@ class EventDetails(TypedDict):
     end_time: str | None
     location_of_event: LocationOfEvent
     price_of_event: float | int
-    event_format: str | None
+    event_format: Literal[event_format_options] | None
     is_sold_out: bool | None
 
 class Timeframe(TypedDict):
