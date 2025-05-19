@@ -64,24 +64,32 @@ class EventRelevanceCalculator:
             DEDUCTION SYSTEM (MAX: 50 POINTS)
 
             STEP 1: INDUSTRY MISMATCH DEDUCTION (0-50 POINTS)
-            Only apply this deduction if "network professionally" or similar is one of the user's goals AND the event involves professional networking.
+            Only apply this deduction if BOTH conditions are met:
+            a. "Network professionally" or similar is one of the user's goals
+            b. The event's primary purpose is networking (this is critical for this deduction to be applied)
 
-            Important exception is that if the event aligns with a different goal of the user, this deduction is not applied.
-            For example, if the user's goal is to "find a business partner", and the event is for "entrepreneurs, business owners, and investors", this deduction is not applied.
+            Important exception is that if the event aligns with a goal of the user (e.g. "find a business partner", "find a co-founder", "find a new career"), this deduction is not applied and the score is 0.
+            For example, if one of the user's goals is to "find a business partner", "find a co-founder" or similar, and the event is for "entrepreneurs, business owners, and investors", this deduction is not applied even if the user is not a business owner or a investor and the score is 0 and everything else for this point is ignored.
 
-            Evaluate how mismatched the event industry is with the user's occupation:
-            - **Complete industry mismatch** (40-50 points): Event is explicitly for professionals in a completely different field with no overlap with user's occupation
-                Example: Software Engineer attending "Beauty & Wellness Industry Professionals" or "Real Estate Developers" event
-            - **Significant industry mismatch** (25-39 points): Event is for professionals in a different but somewhat related field
-                Example: Software Engineer attending "Creative Professionals" or "Marketing Professionals" event
-            - **Moderate industry mismatch** (10-24 points): Event is for a broader professional group that partially includes the user's field
-                Example: Software Engineer attending "Tech and Creative Professionals" event
-            - **Minor industry mismatch** (1-9 points): Event is for professionals in a field very close to the user's
-                Example: Software Engineer attending "IT Professionals" event
-            - **No industry mismatch** (0 points): Event is specifically for the user's industry or is not industry-specific
-                Example: Software Engineer attending "Software Development Professionals" event
+            Evaluate the industry mismatch:
+            - **Complete industry mismatch** (50 points): Event is explicitly and exclusively for professionals in a completely different field with no overlap with user's occupation
+            Example: Software Engineer attending "Beauty & Wellness Industry Professionals" or "Real Estate Developers" event
+            
+            - **Significant industry mismatch** (30 points): Event is explicitly for professionals in a different field that has minimal overlap with user's occupation
+            Example: Software Engineer attending "Legal Professionals" or "Healthcare Professionals" event
+            
+            - **Overly broad or undefined audience** (15 points): Event is for a very generic professional audience with no industry focus, or doesn't specify the target professional audience at all
+            Example: "Networking Mixer" or "Working Professional Networking" or "Creative Professionals" with no industry specification or too broad of an audience
+            
+            - **No deduction** (0 points): Apply in any of these cases:
+            * Event is for the user's industry or related industries
+            * Event has clear overlap with the user's field, interests, and/or goals
 
-            IMPORTANT RULES:
+            IMPORTANT NOTES FOR DEDUCTION SCORE:
+            - This deduction uses fixed values (50, 30, 15, or 0) - there are no partial deductions between these values
+            - Only apply the highest applicable deduction (do not stack them)
+
+            IMPORTANT RULES FOR RELEVANCE SCORE:
             - Keep two scores separate: one for the relevance score and one for the deduction score.
             - Use the full range of scores for each category.
             - Each category must use at least 3 different point values (not just min/max)
