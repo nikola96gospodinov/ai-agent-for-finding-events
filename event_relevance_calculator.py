@@ -2,6 +2,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import BaseMessage
 from typing import List, Dict
+import re
 
 from custom_typings import UserProfile, Location, EventDetails
 from utils import calculate_distance
@@ -22,42 +23,63 @@ class EventRelevanceCalculator:
             {webpage_content}
 
             USER INFORMATION:
+            - Age: {age}
+            - Gender: {gender}
+            - Sexual Orientation: {sexual_orientation}
+            - Relationship Status: {relationship_status}
             - Occupation: {occupation}
             - Interests: {interests}
             - Goals: {goals}
 
             SCORING SYSTEM (MAX: 90 POINTS)
 
-            STEP 1: INTEREST MATCH (0-40 POINTS)
+            STEP 1: INTEREST MATCH (0-45 POINTS)
             Evaluate how strongly the event aligns with the user's stated interests.
             - **Perfect Match** (9-10 points): Core to the event title or primary theme
             - **Strong Match** (6-8 points): Prominently mentioned as topic/activity
             - **Moderate Match** (3-5 points): Secondary or partial focus
             - **Adjacent Match** (1-2 points): Indirect but thematically relevant
-            > Total capped at 40 points
+            > Total capped at 45 points
 
-            STEP 2: GOAL ALIGNMENT (0-30 POINTS)
+            STEP 2: GOAL ALIGNMENT (0-35 POINTS)
             Assess how well the event supports the user's goals.
 
             2A. **Goal Opportunity Quality** (0-20 points):
-            - Exceptional opportunity: 17-20
-            - Strong opportunity: 13-16
-            - Moderate opportunity: 7-12
-            - Weak or limited: 1-6
+            - Exceptional opportunity: 15-20
+            - Strong opportunity: 10-14
+            - Moderate opportunity: 5-9
+            - Weak or limited: 1-4
 
-            2B. **Goal Efficiency** (0-10 points):
-            - Multiple goals addressed well: 8-10
-            - One goal clearly supported: 5-7
-            - Partial/indirect support: 1-4
+            2B. **Goal Efficiency** (0-15 points):
+            - Multiple goals addressed well: 11-15
+            - One goal clearly supported: 6-10
+            - Partial/indirect support: 1-5
 
-            STEP 3: EVENT QUALITY FACTORS (0-20 POINTS)
-            Evaluate how well the event fits the user's preferences and schedule.
-            - **Exclusivity or Rarity** (0-5 points)
-            - **Timing Convenience** (0-5 points)
-            - **Professional Development Value** (0-5 points)
-            - **Networking Potential** (0-5 points)
+            STEP 3: DEMOGRAPHIC COMPATIBILITY (0-10 POINTS)
+            Evaluate how well the event aligns with the user's personal attributes.
+            - **Age Appropriateness** (0-4 points): How well the event suits the user's age group
+            - **Relationship Status Compatibility** (0-3 points): How appropriate the event is given the user's relationship status
+            - **Gender/Orientation Relevance** (0-3 points): Whether the event is inclusive of or specifically tailored to the user's gender/orientation
+
+            DEDUCTION SYSTEM (MAX: 50 POINTS)
+
+            STEP 1: INDUSTRY MISMATCH DEDUCTION (0-50 POINTS)
+            Only apply this deduction if "network professionally" or similar is one of the user's goals AND the event involves professional networking.
+
+            Evaluate how mismatched the event industry is with the user's occupation:
+            - **Complete industry mismatch** (40-50 points): Event is explicitly for professionals in a completely different field with no overlap with user's occupation
+                Example: Software Engineer attending "Beauty & Wellness Industry Professionals" event
+            - **Significant industry mismatch** (25-39 points): Event is for professionals in a different but somewhat related field
+                Example: Software Engineer attending "Creative Professionals" event
+            - **Moderate industry mismatch** (10-24 points): Event is for a broader professional group that partially includes the user's field
+                Example: Software Engineer attending "Tech and Creative Professionals" event
+            - **Minor industry mismatch** (1-9 points): Event is for professionals in a field very close to the user's
+                Example: Software Engineer attending "IT Professionals" event
+            - **No industry mismatch** (0 points): Event is specifically for the user's industry or is not industry-specific
+                Example: Software Engineer attending "Software Development Professionals" event
 
             IMPORTANT RULES:
+            - Keep two scores separate: one for the relevance score and one for the deduction score.
             - Use the full range of scores for each category.
             - Each category must use at least 3 different point values (not just min/max)
             - Always justify each score with specific evidence from the event description.
@@ -66,7 +88,7 @@ class EventRelevanceCalculator:
             - Use some variation in how you phrase judgments to avoid repetitive tone.
 
             RESPONSE FORMAT:
-            1. Start with "X" (where X is the total points and don't include any other text. The first word is the score)
+            1. Start with [X, Y] (where X is the total points after deductions and Y is the deduction score and don't include any other text. The first word are the two scores)
             2. Provide a 1-2 sentence summary of relevance
             3. Show detailed scoring breakdown with sub-scores for each component
             4. Conclude with specific reasons why this event ranks where it does relative to an average relevant event
@@ -79,6 +101,10 @@ class EventRelevanceCalculator:
             "occupation": self.user_profile["occupation"],
             "interests": self.user_profile["interests"],
             "goals": self.user_profile["goals"],
+            "age": self.user_profile["age"],
+            "gender": self.user_profile["gender"],
+            "sexual_orientation": self.user_profile["sexual_orientation"],
+            "relationship_status": self.user_profile["relationship_status"],
             "webpage_content": webpage_content
         })
 
@@ -87,8 +113,6 @@ class EventRelevanceCalculator:
 
         print(f"Event relevance score: {result}")
 
-        score_text = "0"
-        # Handle different possible result types
         if isinstance(result, str):
             text_to_parse = result
         elif isinstance(result, BaseMessage):
@@ -101,20 +125,20 @@ class EventRelevanceCalculator:
 
         # Convert to string to ensure we can split
         text_to_parse = str(text_to_parse)
-        for word in text_to_parse.split():
-            cleaned_word = ''.join(c for c in word if c.isdigit() or c == '.')
-            if cleaned_word and cleaned_word[0].isdigit():
-                if cleaned_word.count('.') <= 1:
-                    score_text = cleaned_word
-                    break
-        try:
-            return int(score_text)
-        except ValueError:
+        
+        # Look for a list pattern like [X, Y]
+        list_match = re.search(r'\[(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)\]', text_to_parse)
+        if list_match:
             try:
-                return float(score_text)
+                first_num = float(list_match.group(1))
+                second_num = float(list_match.group(2))
+                return first_num - second_num
             except ValueError:
-                print(f"Could not convert score '{score_text}' to a number")
+                print(f"Could not convert scores '{list_match.group(1)}' and '{list_match.group(2)}' to numbers")
                 return 0
+        
+        print(f"Could not get the scores from '{text_to_parse}'")
+        return 0
             
     def _calculate_price_score(self, price_of_event: int | float, budget: int | float) -> float:
         if price_of_event > budget:
