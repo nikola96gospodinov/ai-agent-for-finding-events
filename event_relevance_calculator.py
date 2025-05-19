@@ -132,7 +132,12 @@ class EventRelevanceCalculator:
             try:
                 first_num = float(list_match.group(1))
                 second_num = float(list_match.group(2))
-                return first_num - second_num
+
+                final_score = first_num - second_num
+                if final_score < 0:
+                    return 0
+                else:
+                    return final_score
             except ValueError:
                 print(f"Could not convert scores '{list_match.group(1)}' and '{list_match.group(2)}' to numbers")
                 return 0
