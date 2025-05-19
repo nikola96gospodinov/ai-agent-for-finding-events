@@ -66,11 +66,14 @@ class EventRelevanceCalculator:
             STEP 1: INDUSTRY MISMATCH DEDUCTION (0-50 POINTS)
             Only apply this deduction if "network professionally" or similar is one of the user's goals AND the event involves professional networking.
 
+            Important exception is that if the event aligns with a different goal of the user, this deduction is not applied.
+            For example, if the user's goal is to "find a business partner", and the event is for "entrepreneurs, business owners, and investors", this deduction is not applied.
+
             Evaluate how mismatched the event industry is with the user's occupation:
             - **Complete industry mismatch** (40-50 points): Event is explicitly for professionals in a completely different field with no overlap with user's occupation
-                Example: Software Engineer attending "Beauty & Wellness Industry Professionals" event
+                Example: Software Engineer attending "Beauty & Wellness Industry Professionals" or "Real Estate Developers" event
             - **Significant industry mismatch** (25-39 points): Event is for professionals in a different but somewhat related field
-                Example: Software Engineer attending "Creative Professionals" event
+                Example: Software Engineer attending "Creative Professionals" or "Marketing Professionals" event
             - **Moderate industry mismatch** (10-24 points): Event is for a broader professional group that partially includes the user's field
                 Example: Software Engineer attending "Tech and Creative Professionals" event
             - **Minor industry mismatch** (1-9 points): Event is for professionals in a field very close to the user's
