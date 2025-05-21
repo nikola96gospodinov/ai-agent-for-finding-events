@@ -53,7 +53,6 @@ class BaseEventScraper:
         
         try:
             for keyword in keywords:
-                print(f"Searching for '{keyword}' events...")
                 events = await self.extract_event_urls(keywords=keyword, **kwargs)
                 all_events.extend(events)
         finally:
@@ -83,6 +82,7 @@ class EventBriteScraper(BaseEventScraper):
             List of event URLs
         """
         search_url = f"{self.base_url}/d/{country.lower()}--{city.lower()}/{keywords}/?q={keywords}"
+        print(f"Navigating to: {search_url}")
         
         await self.page.goto(search_url)
         
@@ -216,6 +216,7 @@ class LumaScraper(BaseEventScraper):
             List of event URLs
         """
         search_url = f"{self.base_url}/{location}".lower()
+        print(f"Navigating to: {search_url}")
 
         await self.page.goto(search_url)
 
@@ -242,7 +243,7 @@ class LumaScraper(BaseEventScraper):
         
         return events
         
-    async def scrape_events_by_keywords(self, keywords=None, location="london", max_events=25):
+    async def scrape_events_by_keywords(self, keywords=None, location="london", max_events=50):
         """
         Override the base class method for Luma since we don't use keywords.
         
@@ -264,31 +265,43 @@ class LumaScraper(BaseEventScraper):
             await self.close()
 
 async def get_event_links(search_keywords: list[str], eventbrite = True, meetup = True, luma = True) -> list[str]:
-    eventbrite_scraper = EventBriteScraper()
-    meetup_scraper = MeetupScraper()
-    luma_scraper = LumaScraper()
-
-    event_links = []
+    tasks = []
     
     if eventbrite:
-        event_links.extend(await eventbrite_scraper.scrape_events_by_keywords(
+        eventbrite_scraper = EventBriteScraper()
+        tasks.append(eventbrite_scraper.scrape_events_by_keywords(
             country="United Kingdom",
             city="London",
             keywords=search_keywords
         ))
 
     if meetup:
-        event_links.extend(await meetup_scraper.scrape_events_by_keywords(
+        meetup_scraper = MeetupScraper()
+        tasks.append(meetup_scraper.scrape_events_by_keywords(
             location="London",
             country_code="gb",
             keywords=search_keywords
         ))
 
     if luma:
-        event_links.extend(await luma_scraper.scrape_events_by_keywords(
+        luma_scraper = LumaScraper()
+        tasks.append(luma_scraper.scrape_events_by_keywords(
             location="London",
             max_events=40,
             keywords=search_keywords
         ))
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    event_links = []
+    for result in results:
+        if isinstance(result, Exception):
+            print(f"Scraper error: {result}")
+            continue
+        
+        if isinstance(result, list):
+            event_links.extend(result)
+        else:
+            print(f"Unexpected result type: {type(result)}")
 
     return event_links
