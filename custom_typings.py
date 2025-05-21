@@ -44,8 +44,8 @@ class Location(TypedDict, total=False):
     longitude: float
 
 class StartEndTime(TypedDict):
-    start: str
-    end: str
+    start: str | None
+    end: str | None
 
 class AcceptableTimes(TypedDict):
     weekdays: StartEndTime

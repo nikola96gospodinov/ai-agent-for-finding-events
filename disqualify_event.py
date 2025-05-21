@@ -65,8 +65,8 @@ class EventDisqualifier:
         return within_threshold
 
     def _is_event_within_acceptable_timeframe(self, event_details: EventDetails) -> bool:
-        timeframe_start_date = self.user_profile["timeframe"]["start_date"]
-        timeframe_end_date = self.user_profile["timeframe"]["end_date"]
+        timeframe_start_date = self.user_profile["timeframe"].get("start_date")
+        timeframe_end_date = self.user_profile["timeframe"].get("end_date")
         
         event_date_str = event_details["date_of_event"]
         event_date: datetime
@@ -159,29 +159,35 @@ class EventDisqualifier:
         is_weekday = event_details["date_of_event"] and datetime.strptime(event_details["date_of_event"], "%d-%m-%Y").weekday() < 5
 
         if is_weekday:
-            if event_details["start_time"]:
+            weekday_start_time = self.user_profile["acceptable_times"]["weekdays"]["start"]
+            if event_details["start_time"] and weekday_start_time:
                 start_time = datetime.strptime(event_details["start_time"], "%H:%M")
-                start_time_user = datetime.strptime(self.user_profile["acceptable_times"]["weekdays"]["start"], "%H:%M")
+                start_time_user = datetime.strptime(weekday_start_time, "%H:%M")
                 if start_time < start_time_user:
                     print("Event is before the user's acceptable times")
                     return False
-            if event_details["end_time"]:
+            
+            weekday_end_time = self.user_profile["acceptable_times"]["weekdays"]["end"]
+            if event_details["end_time"] and weekday_end_time:
                 end_time = datetime.strptime(event_details["end_time"], "%H:%M")
-                end_time_user = datetime.strptime(self.user_profile["acceptable_times"]["weekdays"]["end"], "%H:%M")
+                end_time_user = datetime.strptime(weekday_end_time, "%H:%M")
                 if end_time > end_time_user:
                     print("Event is after the user's acceptable times")
                     return False
 
         else:
-            if event_details["start_time"]:
+            weekend_start_time = self.user_profile["acceptable_times"]["weekends"]["start"]
+            if event_details["start_time"] and weekend_start_time:
                 start_time = datetime.strptime(event_details["start_time"], "%H:%M")
-                start_time_user = datetime.strptime(self.user_profile["acceptable_times"]["weekends"]["start"], "%H:%M")
+                start_time_user = datetime.strptime(weekend_start_time, "%H:%M")
                 if start_time < start_time_user:
                     print("Event is before the user's acceptable times")
                     return False
-            if event_details["end_time"]:
+            
+            weekend_end_time = self.user_profile["acceptable_times"]["weekends"]["end"]
+            if event_details["end_time"] and weekend_end_time:
                 end_time = datetime.strptime(event_details["end_time"], "%H:%M")
-                end_time_user = datetime.strptime(self.user_profile["acceptable_times"]["weekends"]["end"], "%H:%M")
+                end_time_user = datetime.strptime(weekend_end_time, "%H:%M")
                 if end_time > end_time_user:
                     print("Event is after the user's acceptable times")
                     return False

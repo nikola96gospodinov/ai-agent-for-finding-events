@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime
 import os
 from dotenv import load_dotenv, find_dotenv
 from langchain_ollama import ChatOllama
@@ -9,10 +8,10 @@ from event_relevance_calculator import EventRelevanceCalculator
 from extract_event_details import extract_event_details
 from disqualify_event import EventDisqualifier
 from scrap_web_page import scrap_page
-from custom_typings import UserProfile
 from scrapers import get_event_links
 from get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
 from utils import remove_duplicates_based_on_title
+from avatars import user_profile_main
 
 if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)
@@ -33,45 +32,9 @@ model = ChatOllama(model="gemma3:12b")
 #     # Fallback to local model if Google API fails
 #     model = fallback_model
 
-user_profile: UserProfile = {
-        "age": 28,
-        "gender": "male",
-        "sexual_orientation": "straight",
-        "relationship_status": "in a relationship",
-        "willingness_to_pay": True,
-        "budget": 50,
-        "willingness_for_online": False,
-        "acceptable_times": {
-            "weekdays": {
-                "start": "17:00",
-                "end": "22:00"
-            },
-            "weekends": {
-                "start": "8:00",
-                "end": "23:00"
-            }
-        },
-        "location": {
-            "latitude": 51.5253263,
-            "longitude": -0.1015115
-        },
-        "distance_threshold": {
-            "distance_threshold": 20,
-            "unit": "miles"
-        },
-        "time_commitment_in_minutes": 240, # 4 hours
-        "timeframe": {
-            "start_date": datetime(2025, 4, 1),
-            "end_date": datetime(2025, 12, 31)
-        },
-        "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
-        "goals": ["network professionally", "make new friends", "find a business partner"],
-        "occupation": "software engineer"
-    }
-
-search_keywords = get_search_keywords_for_event_sites(user_profile, model)
-event_disqualifier = EventDisqualifier(user_profile)
-event_relevance_calculator = EventRelevanceCalculator(model, user_profile)
+search_keywords = get_search_keywords_for_event_sites(user_profile_main, model)
+event_disqualifier = EventDisqualifier(user_profile_main)
+event_relevance_calculator = EventRelevanceCalculator(model, user_profile_main)
 
 async def check_event(event_link: str):
     print(f"Checking event: {event_link}")
