@@ -38,12 +38,12 @@ user_profile_main: UserProfile = {
     }
 
 user_profile_creative: UserProfile = {
-    "age": 32,
+    "age": 34,
     "gender": "female",
     "sexual_orientation": "bisexual",
     "relationship_status": "single",
     "willingness_to_pay": True,
-    "budget": 100,
+    "budget": 50,
     "willingness_for_online": True,
     "acceptable_times": {
         "weekdays": {
@@ -56,20 +56,20 @@ user_profile_creative: UserProfile = {
         }
     },
     "location": {
-        "latitude": 51.5074,
-        "longitude": -0.1278
+        "latitude": 51.5495,
+        "longitude": 0.0597
     },
     "distance_threshold": {
         "distance_threshold": 15,
         "unit": "miles"
     },
-    "time_commitment_in_minutes": 180,
+    "time_commitment_in_minutes": 360,
     "timeframe": {
         "start_date": datetime(2025, 5, 1),
-        "end_date": datetime(2025, 10, 31)
+        "end_date": datetime(2025, 12, 31)
     },
-    "interests": ["art", "photography", "design", "music", "concerts", "theater", "poetry", "writing", "coffee", "vegan", "sustainability", "travel", "yoga", "meditation", "breathwork"],
-    "goals": ["find creative collaborators", "expand social circle", "discover new art venues"],
+    "interests": ["art", "photography", "design", "music", "concerts", "theater", "poetry", "writing", "coffee", "vegan", "sustainability", "travel", "yoga", "meditation", "breathwork", "art", "exhibitions", "museums"],
+    "goals": ["find creative collaborators", "expand social circle", "discover new art venues", "find a romantic partner"],
     "occupation": "graphic designer"
 }
 
@@ -92,25 +92,25 @@ user_profile_sports: UserProfile = {
         }
     },
     "location": {
-        "latitude": 51.4543,
-        "longitude": -2.5879
+        "latitude": 51.5386,
+        "longitude": 0.1028
     },
     "distance_threshold": {
         "distance_threshold": 10,
         "unit": "miles"
     },
-    "time_commitment_in_minutes": 120,
+    "time_commitment_in_minutes": 180,
     "timeframe": {
-        "start_date": datetime(2025, 6, 1),
-        "end_date": datetime(2025, 8, 31)
+        "start_date": datetime(2025, 5, 1),
+        "end_date": datetime(2025, 12, 31)
     },
-    "interests": ["football", "basketball", "running", "gym", "fitness", "sports", "healthy eating", "team sports", "outdoor activities"],
-    "goals": ["find sports partners", "join local teams", "improve fitness"],
+    "interests": ["football", "basketball", "running", "gym", "fitness", "sports", "healthy eating", "team sports", "outdoor activities", "hiking", "cycling", "swimming", "yoga", "meditation", "breathwork"],
+    "goals": ["join local teams", "improve fitness"],
     "occupation": "personal trainer"
 }
 
 user_profile_family: UserProfile = {
-    "age": 35,
+    "age": 42,
     "gender": "female",
     "sexual_orientation": "straight",
     "relationship_status": "married",
@@ -128,20 +128,20 @@ user_profile_family: UserProfile = {
         }
     },
     "location": {
-        "latitude": 51.5074,
-        "longitude": -0.1278
+        "latitude": 51.5390,
+        "longitude": 0.1426
     },
     "distance_threshold": {
-        "distance_threshold": 5,
+        "distance_threshold": 10,
         "unit": "miles"
     },
-    "time_commitment_in_minutes": 90,
+    "time_commitment_in_minutes": 120,
     "timeframe": {
-        "start_date": datetime(2025, 7, 1),
-        "end_date": datetime(2025, 9, 30)
+        "start_date": datetime(2025, 5, 1),
+        "end_date": datetime(2025, 12, 31)
     },
     "interests": ["parenting", "cooking", "gardening", "reading", "board games", "family activities", "local community", "volunteering"],
-    "goals": ["meet other parents", "find family-friendly activities", "build local connections"],
+    "goals": ["find family-friendly activities", "build local connections"],
     "occupation": "teacher"
 }
 
@@ -151,7 +151,7 @@ user_profile_student: UserProfile = {
     "sexual_orientation": "other",
     "relationship_status": "single",
     "willingness_to_pay": False,
-    "budget": 20,
+    "budget": 0,
     "willingness_for_online": True,
     "acceptable_times": {
         "weekdays": {
@@ -160,23 +160,23 @@ user_profile_student: UserProfile = {
         },
         "weekends": {
             "start": "12:00",
-            "end": "02:00"
+            "end": None
         }
     },
     "location": {
-        "latitude": 51.5074,
-        "longitude": -0.1278
+        "latitude": 51.4773,
+        "longitude": 0.2017
     },
     "distance_threshold": {
-        "distance_threshold": 3,
+        "distance_threshold": 25,
         "unit": "miles"
     },
-    "time_commitment_in_minutes": 60,
+    "time_commitment_in_minutes": 240,
     "timeframe": {
-        "start_date": datetime(2025, 9, 1),
+        "start_date": datetime(2025, 5, 1),
         "end_date": datetime(2025, 12, 31)
     },
-    "interests": ["studying", "campus life", "student activities", "music", "gaming", "social media", "cafe culture", "budget travel"],
-    "goals": ["make study buddies", "find campus events", "network with peers"],
+    "interests": ["studying", "campus life", "student activities", "music", "gaming", "social media", "cafe culture", "budget travel", "clubbing", "nightlife", "dancing", "dating"],
+    "goals": ["make study buddies", "find campus events", "network with peers", "dating"],
     "occupation": "university student"
 }
