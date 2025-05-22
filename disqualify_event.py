@@ -149,9 +149,6 @@ class EventDisqualifier:
             if self.user_profile["willingness_for_online"] == False and "online" in event_details["event_format"]:
                 print("Event is online and the user is unwilling to attend online events")
                 return False
-            if self.user_profile["willingness_for_online"] == True and "offline" in event_details["event_format"]:
-                print("Event is offline and the user is unwilling to attend offline events")
-                return False
 
         return True
     
