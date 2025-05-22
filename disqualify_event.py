@@ -1,6 +1,6 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from custom_typings import EventDetails, UserProfile, Location
 from utils import calculate_distance
@@ -160,6 +160,8 @@ class EventDisqualifier:
             if event_details["start_time"] and weekday_start_time:
                 start_time = datetime.strptime(event_details["start_time"], "%H:%M")
                 start_time_user = datetime.strptime(weekday_start_time, "%H:%M")
+                # Add 30 minutes padding to start time
+                start_time_user = start_time_user - timedelta(minutes=30)
                 if start_time < start_time_user:
                     print("Event is before the user's acceptable times")
                     return False
@@ -168,6 +170,8 @@ class EventDisqualifier:
             if event_details["end_time"] and weekday_end_time:
                 end_time = datetime.strptime(event_details["end_time"], "%H:%M")
                 end_time_user = datetime.strptime(weekday_end_time, "%H:%M")
+                # Add 30 minutes padding to end time
+                end_time_user = end_time_user + timedelta(minutes=30)
                 if end_time > end_time_user:
                     print("Event is after the user's acceptable times")
                     return False
@@ -177,6 +181,8 @@ class EventDisqualifier:
             if event_details["start_time"] and weekend_start_time:
                 start_time = datetime.strptime(event_details["start_time"], "%H:%M")
                 start_time_user = datetime.strptime(weekend_start_time, "%H:%M")
+                # Add 30 minutes padding to start time
+                start_time_user = start_time_user - timedelta(minutes=30)
                 if start_time < start_time_user:
                     print("Event is before the user's acceptable times")
                     return False
@@ -185,6 +191,8 @@ class EventDisqualifier:
             if event_details["end_time"] and weekend_end_time:
                 end_time = datetime.strptime(event_details["end_time"], "%H:%M")
                 end_time_user = datetime.strptime(weekend_end_time, "%H:%M")
+                # Add 30 minutes padding to end time
+                end_time_user = end_time_user + timedelta(minutes=30)
                 if end_time > end_time_user:
                     print("Event is after the user's acceptable times")
                     return False
