@@ -32,7 +32,8 @@ model = ChatOllama(model="gemma3:12b")
 #     # Fallback to local model if Google API fails
 #     model = fallback_model
 
-search_keywords = get_search_keywords_for_event_sites(user_profile_creative, model)
+search_keywords_creative = get_search_keywords_for_event_sites(user_profile_creative, model)
+
 event_disqualifier = EventDisqualifier(user_profile_creative)
 event_relevance_calculator = EventRelevanceCalculator(model, user_profile_creative)
 
@@ -62,7 +63,7 @@ async def check_event(event_link: str):
         return None
 
 async def main():
-    event_links = await get_event_links(search_keywords)
+    event_links = await get_event_links(search_keywords_creative)
 
     events = []
     for event_link in event_links:

@@ -3,6 +3,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
 from custom_typings import UserProfile
+from utils import get_age_bracket
 
 def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseChatModel) -> List[str]:
     """
@@ -23,17 +24,17 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
 
         Consider:
         - User's goals: {goals} - These are HIGHEST priority
-        - User's age bracket: {age}s (e.g., 20s, 30s, 40s)
+        - User's age bracket: {age_bracket}
         - User's interests: {interests}
 
         QUERY CREATION RULES:
         1. GOALS-BASED QUERIES (HIGHEST PRIORITY):
         - Create personalized queries for EACH goal
-        - Include age bracket for social goals (e.g., "make friends 20s", "dating 30s") but not for professional goals (e.g., "tech networking 30s" or "startup partner 20s" are not good queries)
+        - Include age bracket for social goals (e.g., "make friends {age_bracket}", "dating {age_bracket}") but not for professional goals (e.g., "tech networking {age_bracket}" or "startup partner {age_bracket}" are not good queries) nor for more general goals (e.g., "volunteering {age_bracket}", "yoga classes {age_bracket}", "running clubs {age_bracket}" are not good queries)
 
         2. AGE-SPECIFIC QUERIES:
-        - For social/community goals, ALWAYS include age bracket (e.g., "community 30s", "friends 20s") but not for professional goals (e.g., "networking 30s" or "business partner 20s" are not good queries)
-        - DO NOT include age for hobby/interest queries. This is crucial.
+        - For social/community goals, ALWAYS include age bracket (e.g., "community {age_bracket}", "friends {age_bracket}") but not for professional goals (e.g., "networking {age_bracket}" or "business partner {age_bracket}" are not good queries) nor for more general goals (e.g., "volunteering {age_bracket}", "yoga classes {age_bracket}", "running clubs {age_bracket}" are not good queries)
+        - DO NOT mix up ages. (if the user is 42 then only use '40s' and never anything else)
 
         3. INTEREST-BASED QUERIES:
         - Keep all interest queries to 4 words or less
@@ -41,7 +42,7 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
         - DO NOT force unrelated combinations
 
         4. PROHIBITED TERMS:
-        - NO generic terms like "events", "meetups", "community", "group", "gathering", "enthusiasts" unless they are absolutely necessary
+        - NO generic terms like "events", "meetups", "community", "group", "gathering", "enthusiasts", "near me" unless they are absolutely necessary
         - NO standalone "networking" or "professional networking"
         - NO generic terms like "professional connections", "find collaborators", "business collaboration" or similar terms
 
@@ -50,7 +51,10 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
         - Focus on specificity and relevance
 
         EXAMPLE OUTPUT FORMAT:
-        make friends 20s, find a business partner, tech startups, python coding, hiking outdoors, AI
+        make friends {age_bracket}, find a business partner, tech startups, python coding, hiking outdoors, AI
+
+        IMPORTANT:
+        Examples are just that, examples. DO NOT follow them exactly. If the user has no interest in something that was provided in the examples, then do not include it in the output. The only exception is negative examples. If a negative example is provided, then under no circumstances should you include it in the output.
     """
 
     prompt = ChatPromptTemplate.from_template(prompt_template)
@@ -58,7 +62,7 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
     response = chain.invoke({
         "interests": user_profile["interests"],
         "goals": user_profile["goals"],
-        "age": user_profile["age"]
+        "age_bracket": get_age_bracket(user_profile["age"])
     })
 
     if hasattr(response, 'content'):
