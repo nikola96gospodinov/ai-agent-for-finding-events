@@ -293,15 +293,16 @@ async def get_event_links(search_keywords: list[str], eventbrite = True, meetup 
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    event_links = []
+    event_links = set()
+    
     for result in results:
         if isinstance(result, Exception):
             print(f"Scraper error: {result}")
             continue
         
         if isinstance(result, list):
-            event_links.extend(result)
+            event_links.update(result)
         else:
             print(f"Unexpected result type: {type(result)}")
 
-    return event_links
+    return list(event_links)
