@@ -156,8 +156,10 @@ class EventRelevanceCalculator:
         print(f"Could not get the scores from '{text_to_parse}'")
         return 0
             
-    def _calculate_price_score(self, price_of_event: int | float, budget: int | float) -> float:
-        if price_of_event > budget:
+    def _calculate_price_score(self, price_of_event: int | float | None, budget: int | float) -> float:        
+        if price_of_event is None:
+            return 0
+        elif price_of_event > budget:
             return 0
         elif price_of_event == 0:
             return 5
