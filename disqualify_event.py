@@ -146,7 +146,7 @@ class EventDisqualifier:
     
     def _is_event_suitable_for_event_format(self, event_details: EventDetails) -> bool:
         if event_details["event_format"] and self.user_profile["willingness_for_online"]:
-            if self.user_profile["willingness_for_online"] == False and "online" in event_details["event_format"]:
+            if self.user_profile["willingness_for_online"] == False and "online" in event_details["event_format"] and "offline" not in event_details["event_format"]:
                 print("Event is online and the user is unwilling to attend online events")
                 return False
 

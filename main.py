@@ -32,10 +32,10 @@ model = ChatOllama(model="gemma3:12b")
 #     # Fallback to local model if Google API fails
 #     model = fallback_model
 
-search_keywords_creative = get_search_keywords_for_event_sites(user_profile_creative, model)
+search_keywords_creative = get_search_keywords_for_event_sites(user_profile_main, model)
 
-event_disqualifier = EventDisqualifier(user_profile_creative)
-event_relevance_calculator = EventRelevanceCalculator(model, user_profile_creative)
+event_disqualifier = EventDisqualifier(user_profile_main)
+event_relevance_calculator = EventRelevanceCalculator(model, user_profile_main)
 
 async def check_event(event_link: str):
     print(f"Checking event: {event_link}")

@@ -8,34 +8,34 @@ user_profile_main: UserProfile = {
     "relationship_status": "in a relationship",
     "willingness_to_pay": True,
     "budget": 50,
-        "willingness_for_online": False,
-        "acceptable_times": {
-            "weekdays": {
-                "start": "17:00",
-                "end": "22:00"
-            },
-            "weekends": {
-                "start": "8:00",
-                "end": "23:00"
-            }
+    "willingness_for_online": False,
+    "acceptable_times": {
+        "weekdays": {
+            "start": "17:00",
+            "end": "22:00"
         },
-        "location": {
-            "latitude": 51.5253263,
-            "longitude": -0.1015115
-        },
-        "distance_threshold": {
-            "distance_threshold": 20,
-            "unit": "miles"
-        },
-        "time_commitment_in_minutes": 240, # 4 hours
-        "timeframe": {
-            "start_date": datetime(2025, 4, 1),
-            "end_date": datetime(2025, 12, 31)
-        },
-        "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
-        "goals": ["network professionally", "make new friends", "find a business partner"],
-        "occupation": "software engineer"
-    }
+        "weekends": {
+            "start": "8:00",
+            "end": "23:00"
+        }
+    },
+    "location": {
+        "latitude": 51.5253263,
+        "longitude": -0.1015115
+    },
+    "distance_threshold": {
+        "distance_threshold": 20,
+        "unit": "miles"
+    },
+    "time_commitment_in_minutes": 240, # 4 hours
+    "timeframe": {
+        "start_date": datetime(2025, 4, 1),
+        "end_date": datetime(2025, 12, 31)
+    },
+    "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
+    "goals": ["network professionally", "make new friends", "find a business partner"],
+    "occupation": "software engineer"
+}
 
 user_profile_creative: UserProfile = {
     "age": 34,
