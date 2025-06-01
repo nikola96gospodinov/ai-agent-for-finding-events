@@ -45,7 +45,7 @@ async def check_event(event_link: str):
     event_details = extract_event_details(webpage_content, model)
     
     if event_details is None:
-        print("Event is either sold out or not available.")
+        print("Something went wrong while extracting event details.")
         return None
 
     is_compatible = event_disqualifier.check_compatibility(event_details)
