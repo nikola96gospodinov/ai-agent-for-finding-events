@@ -65,13 +65,15 @@ class EventDisqualifier:
         return within_threshold
 
     def _is_event_within_acceptable_timeframe(self, event_details: EventDetails) -> bool:
-        timeframe_start_date = self.user_profile["timeframe"].get("start_date")
-        timeframe_end_date = self.user_profile["timeframe"].get("end_date")
+        timeframe = self.user_profile.get("timeframe", {})
+        timeframe_start_date = timeframe.get("start_date")
+        timeframe_end_date = timeframe.get("end_date")
         
         event_date_str = event_details["date_of_event"]
-        event_date: datetime
-        if event_date_str:
-            event_date = datetime.strptime(event_date_str, "%d-%m-%Y")
+        if not event_date_str:
+            return True
+            
+        event_date = datetime.strptime(event_date_str, "%d-%m-%Y")
         
         if timeframe_start_date and event_date < timeframe_start_date:
             print("Event is before the timeframe start date")

@@ -207,7 +207,7 @@ user_profile_main_other: UserProfile = {
         "distance_threshold": 20,
         "unit": "miles"
     },
-    "time_commitment_in_minutes": 180,
+    "time_commitment_in_minutes": 240,
     "timeframe": {
         "start_date": datetime(2025, 5, 1),
         "end_date": datetime(2025, 12, 31)
