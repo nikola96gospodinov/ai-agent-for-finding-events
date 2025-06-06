@@ -180,3 +180,39 @@ user_profile_student: UserProfile = {
     "goals": ["make study buddies", "find campus events", "network with peers", "dating"],
     "occupation": "university student"
 }
+
+user_profile_main_other: UserProfile = {
+    "age": 37,
+    "gender": "female",
+    "sexual_orientation": "straight",
+    "relationship_status": "in a relationship",
+    "willingness_to_pay": True,
+    "budget": 20,
+    "willingness_for_online": False,
+    "acceptable_times": {
+        "weekdays": {
+            "start": "17:00",
+            "end": "22:00"
+        },
+        "weekends": {
+            "start": "8:00",
+            "end": "23:00"
+        }
+    },
+    "location": {
+        "latitude": 51.5253263,
+        "longitude": -0.1015115
+    },
+    "distance_threshold": {
+        "distance_threshold": 20,
+        "unit": "miles"
+    },
+    "time_commitment_in_minutes": 180,
+    "timeframe": {
+        "start_date": datetime(2025, 5, 1),
+        "end_date": datetime(2025, 12, 31)
+    },
+    "interests": ["reading", "sci-fi", "running", "travel", "coffee", "art", "music", "museums", "swimming", "offline", "hiking", "nature", "outdoors", "psychology", "tattoos", "fashion", "movies", "cinematography", "talks"],
+    "goals": ["find a new job", "network professionally"],
+    "occupation": "nurse"
+}

@@ -11,7 +11,7 @@ from scrap_web_page import scrap_page
 from scrapers import get_event_links
 from get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
 from utils import remove_duplicates_based_on_title
-from avatars import user_profile_main, user_profile_creative, user_profile_sports, user_profile_family, user_profile_student
+from avatars import user_profile_main, user_profile_creative, user_profile_sports, user_profile_family, user_profile_student, user_profile_main_other
 
 if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)
@@ -32,10 +32,10 @@ model = ChatOllama(model="gemma3:12b")
 #     # Fallback to local model if Google API fails
 #     model = fallback_model
 
-search_keywords_creative = get_search_keywords_for_event_sites(user_profile_main, model)
+search_keywords_creative = get_search_keywords_for_event_sites(user_profile_main_other, model)
 
-event_disqualifier = EventDisqualifier(user_profile_main)
-event_relevance_calculator = EventRelevanceCalculator(model, user_profile_main)
+event_disqualifier = EventDisqualifier(user_profile_main_other)
+event_relevance_calculator = EventRelevanceCalculator(model, user_profile_main_other)
 
 async def check_event(event_link: str):
     print(f"Checking event: {event_link}")
