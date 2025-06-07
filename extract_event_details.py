@@ -17,7 +17,7 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         Extract the details of the event from the web page.
         The details that are needed are:
         - Title of the event
-        - Age range - return the age range in the following format: {{"min_age": 20, "max_age": 30}}. If the age range is not mentioned, then return None. If either the min_age or max_age is not mentioned, then return None for that value. 18+ indicates a minimum age of 18 but no maximum age. 18-26 indicates a minimum age of 18 and a maximum age of 26 ({{"min_age": 18, "max_age": 26}}).
+        - Age range - return the age range in the following format: {{"min_age": 20, "max_age": 30}}. If the age range is not mentioned, then return None. If either the min_age or max_age is not mentioned, then return None for that value. 18+ indicates a minimum age of 18 but no maximum age. 18-26 indicates a minimum age of 18 and a maximum age of 26 ({{"min_age": 18, "max_age": 26}}). Under 35s indicates a maximum age of 35 and no minimum age ({{"min_age": None, "max_age": 35}}).
         - Gender bias - return a list of gender bias options. The options are: {gender_bias_options}. For example it could be ["female", "male", "non-binary"] or just ["female"]. If there are no gender biases, then it should be None.
             * The event explicitly states it's for a specific gender
             * The event description uses gendered language throughout (e.g., "ladies", "sisterhood", "brotherhood")

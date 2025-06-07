@@ -28,26 +28,34 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
         - User's age bracket: {age_bracket}
         - User's interests: {interests}
         - User's occupation: {occupation}
+        - User's gender: {gender}
+        - Is LGBTQ+: {is_lgbtq}
 
         QUERY CREATION RULES:
         1. GOALS-BASED QUERIES:
         - Create personalized queries for EACH goal
-        - Include age bracket for social goals (e.g., "make friends {age_bracket}", "dating {age_bracket}") but not for professional goals (e.g., "tech networking {age_bracket}" or "startup partner {age_bracket}" are NOT good queries) nor for more general goals (e.g., "volunteering {age_bracket}", "yoga classes {age_bracket}", "running clubs {age_bracket}" are NOT good queries)
         
         2. AGE-SPECIFIC QUERIES:
         - For social/community goals, ALWAYS include age bracket (e.g., "community {age_bracket}", "friends {age_bracket}") but not for professional goals (e.g., "networking {age_bracket}" or "business partner {age_bracket}" are NOT good queries) nor for more general goals (e.g., "volunteering {age_bracket}", "yoga classes {age_bracket}", "running clubs {age_bracket}" are NOT good queries)
 
-        3. INTEREST-BASED QUERIES:
+        3. GENDER-SPECIFIC QUERIES:
+        - Create one gender-specific query based on the user's gender (e.g. ladies only, men circles, etc.)
+
+        4. LGBTQ+ query (OPTIONAL):
+        - Create one LGBTQ+ query if the user is LGBTQ+ - this is optional and should only be done if the user is LGBTQ+. (e.g. "LGBTQ+ events", "LGBTQ+ community", "LGBTQ+ support group", etc.)
+
+        5. INTEREST-BASED QUERIES:
         - Keep all interest queries to 4 words or less
         - Group related interests when logical (e.g., "tech business", "hiking outdoors")
-        - DO NOT force unrelated combinations
+        - DO NOT force unrelated combinations. (e.g. "fashion swimming" is NOT a good query)
+        - DO NOT include age bracket in interest queries, only include it in goals-based queries
 
-        4. PROHIBITED TERMS:
+        6. PROHIBITED TERMS:
         - NO generic terms like "events", "meetups", "community", "group", "gathering", "enthusiasts", "near me" unless they are absolutely necessary
         - NO standalone "networking" or "professional networking"
         - NO generic terms like "professional connections", "find collaborators", "business collaboration", or similar terms
 
-        5. QUERY DIVERSITY:
+        7. QUERY DIVERSITY:
         - Avoid overly similar queries that would return the same results. For example, repeating the same query with different variations of the same word
         - Focus on specificity and relevance
 
@@ -65,7 +73,9 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
         "interests": user_profile["interests"],
         "goals": user_profile["goals"],
         "age_bracket": get_age_bracket(user_profile["age"]),
-        "occupation": user_profile["occupation"]
+        "occupation": user_profile["occupation"],
+        "gender": user_profile["gender"],
+        "is_lgbtq": user_profile["sexual_orientation"] != "straight"
     })
 
     if hasattr(response, 'content'):
