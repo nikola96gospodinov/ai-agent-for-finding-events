@@ -35,8 +35,8 @@ except Exception as e:
 # Search terms are generated using the powerful model as this is quite important for finding the right events
 search_keywords = get_search_keywords_for_event_sites(user_profile_main, powerful_model)
 
-event_disqualifier = EventDisqualifier(user_profile_main_other)
-event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile_main_other)
+event_disqualifier = EventDisqualifier(user_profile_main)
+event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile_main)
 
 async def check_event(event_link: str):
     print(f"Checking event: {event_link}")
