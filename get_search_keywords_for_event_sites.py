@@ -6,7 +6,7 @@ from custom_typings import UserProfile
 from utils import get_age_bracket
 
 def remove_prohibited_queries(queries: List[str]) -> List[str]:
-    prohibited_queries = ["professional connections", "find collaborators", "business collaboration", "networking", "professional networking", "find a job", "job fairs", "job training"]
+    prohibited_queries = ["professional connections", "find collaborators", "business collaboration", "networking", "professional networking", "find a job", "job fairs", "job training", "career fair", "career fairs", "job fair", "job opportunities", "job search", "job openings", "improve skills", "career"]
     return [query for query in queries if query not in prohibited_queries]
 
 def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseChatModel) -> List[str]:
@@ -24,7 +24,7 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
     prompt_template = """
         You are a search query generator specialized in creating effective event discovery queries.
 
-        IMPORTANT: Format your response ONLY as a comma-separated list of search queries with NO additional text or explanations. Limit the number of queries to 25.
+        IMPORTANT: Format your response ONLY as a comma-separated list of search queries with NO additional text or explanations. Limit the number of queries to 30.
         IMPORTANT: Examples (e.g.) are just for demonstration purposes. DO NOT follow them exactly. If the user has no interest in something that was provided in the examples, then do not include it in the output. The only exception is negative examples. If a negative example is provided, then under no circumstances should you include it in the output.
         
         Consider:

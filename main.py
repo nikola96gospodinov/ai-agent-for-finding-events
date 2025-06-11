@@ -33,59 +33,53 @@ except Exception as e:
     powerful_model = local_model
 
 # Search terms are generated using the powerful model as this is quite important for finding the right events
-search_keywords = get_search_keywords_for_event_sites(user_profile_main_other, powerful_model)
-search_keywords_2 = get_search_keywords_for_event_sites(user_profile_main_other, powerful_model)
-search_keywords_3 = get_search_keywords_for_event_sites(user_profile_main_other, powerful_model)
+search_keywords = get_search_keywords_for_event_sites(user_profile_main, powerful_model)
 
-print(search_keywords)
-print(search_keywords_2)
-print(search_keywords_3)
+event_disqualifier = EventDisqualifier(user_profile_main_other)
+event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile_main_other)
 
-# event_disqualifier = EventDisqualifier(user_profile_main_other)
-# event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile_main_other)
+async def check_event(event_link: str):
+    print(f"Checking event: {event_link}")
 
-# async def check_event(event_link: str):
-#     print(f"Checking event: {event_link}")
+    webpage_content = await scrap_page(event_link)
 
-#     webpage_content = await scrap_page(event_link)
-
-#     event_details = extract_event_details(webpage_content, powerful_model)
+    event_details = extract_event_details(webpage_content, powerful_model)
     
-#     if event_details is None:
-#         print("Something went wrong while extracting event details.")
-#         return None
+    if event_details is None:
+        print("Something went wrong while extracting event details.")
+        return None
 
-#     is_compatible = event_disqualifier.check_compatibility(event_details)
+    is_compatible = event_disqualifier.check_compatibility(event_details)
 
-#     if is_compatible:
-#         event_relevance_score = event_relevance_calculator.calculate_event_relevance_score(webpage_content, event_details)
-#         print(f"Event relevance score: {event_relevance_score}")
-#         return {
-#             "event_link": event_link,
-#             "relevance": event_relevance_score,
-#             "title": event_details["title"]
-#         }
-#     else:
-#         print("Event is not compatible with the user's profile and/or preferences.")
-#         return None
+    if is_compatible:
+        event_relevance_score = event_relevance_calculator.calculate_event_relevance_score(webpage_content, event_details)
+        print(f"Event relevance score: {event_relevance_score}")
+        return {
+            "event_link": event_link,
+            "relevance": event_relevance_score,
+            "title": event_details["title"]
+        }
+    else:
+        print("Event is not compatible with the user's profile and/or preferences.")
+        return None
 
-# async def main():
-#     event_links = await get_event_links(search_keywords)
+async def main():
+    event_links = await get_event_links(search_keywords)
 
-#     events = []
-#     for event_link in event_links:
-#         try:
-#             event = await check_event(event_link)
-#             if event is not None:
-#                 events.append(event)
-#         except Exception as e:
-#             print(f"Error checking event: {e}")
+    events = []
+    for event_link in event_links:
+        try:
+            event = await check_event(event_link)
+            if event is not None:
+                events.append(event)
+        except Exception as e:
+            print(f"Error checking event: {e}")
 
-#     events = sorted(events, key=lambda x: x["relevance"], reverse=True)
-#     events = remove_duplicates_based_on_title(events)
+    events = sorted(events, key=lambda x: x["relevance"], reverse=True)
+    events = remove_duplicates_based_on_title(events)
     
-#     for event in events:
-#         print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}\n")
+    for event in events:
+        print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}\n")
 
-# if __name__ == "__main__":
-#     asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
