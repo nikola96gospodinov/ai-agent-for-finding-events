@@ -19,7 +19,7 @@ if os.path.exists('.env'):
 # Due to limitations in the Gemini API, we're using exclusively Ollama for now
 local_model = ChatOllama(model="gemma3:12b")
 powerful_model = ChatGoogleGenerativeAI(
-    model='gemini-2.0-flash-exp',
+    model='gemini-2.0-flash',
     api_key=os.environ["GEMINI_API_KEY"] # type: ignore
 )
 

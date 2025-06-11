@@ -39,7 +39,11 @@ class EventDisqualifier:
         if not self.user_profile.get("location") or not self.user_profile.get("distance_threshold"):
             return True
             
-        event_location = event_details["location_of_event"]
+        event_location = event_details.get("location_of_event")
+        if not event_location:
+            # If event has no location, we can't calculate distance
+            return True
+            
         if not event_location.get("latitude") or not event_location.get("longitude"):
             # If event has no coordinates, we can't calculate distance
             return True
@@ -157,6 +161,9 @@ class EventDisqualifier:
         return True
     
     def _is_event_within_acceptable_times(self, event_details: EventDetails) -> bool:
+        if not self.user_profile.get("acceptable_times"):
+            return True
+
         is_weekday = event_details["date_of_event"] and datetime.strptime(event_details["date_of_event"], "%d-%m-%Y").weekday() < 5
 
         if is_weekday:
