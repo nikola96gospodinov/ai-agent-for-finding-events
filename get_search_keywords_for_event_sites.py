@@ -5,6 +5,10 @@ from langchain_core.prompts import ChatPromptTemplate
 from custom_typings import UserProfile
 from utils import get_age_bracket
 
+def remove_prohibited_queries(queries: List[str]) -> List[str]:
+    prohibited_queries = ["professional connections", "find collaborators", "business collaboration", "networking", "professional networking", "find a job", "job fairs", "job training"]
+    return [query for query in queries if query not in prohibited_queries]
+
 def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseChatModel) -> List[str]:
     """
     Generate search keywords based on user profile and model.
@@ -30,32 +34,37 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
         - User's occupation: {occupation}
         - User's gender: {gender}
         - Is LGBTQ+: {is_lgbtq}
+        - Is single: {is_single}
 
         QUERY CREATION RULES:
-        1. GOALS-BASED QUERIES:
+        1. GOAL-BASED QUERIES:
         - Create personalized queries for EACH goal
+        - ONLY IF appropriate generate an EXTRA query (don't replace the original query) for a goal that will find other relevant events (e.g. "find a business partner" -> "pitch night", "make new friends" -> "community {age_bracket}").
         
         2. AGE-SPECIFIC QUERIES:
-        - For social/community goals, ALWAYS include age bracket (e.g., "community {age_bracket}", "friends {age_bracket}") but not for professional goals (e.g., "networking {age_bracket}" or "business partner {age_bracket}" are NOT good queries) nor for more general goals (e.g., "volunteering {age_bracket}", "yoga classes {age_bracket}", "running clubs {age_bracket}" are NOT good queries)
+        - For social/community goals, ALWAYS include age bracket (e.g., "community {age_bracket}", "make friends {age_bracket}") but not for professional goals (e.g., "networking {age_bracket}" or "business partner {age_bracket}" are NOT good queries) nor for more general goals (e.g., "volunteering {age_bracket}", "yoga classes {age_bracket}", "running clubs {age_bracket}" are NOT good queries)
 
         3. GENDER-SPECIFIC QUERIES:
         - Create one gender-specific query based on the user's gender (e.g. ladies only, men circles, etc.)
 
-        4. LGBTQ+ query (OPTIONAL):
+        4. LGBTQ+ QUERY (OPTIONAL):
         - Create one LGBTQ+ query if the user is LGBTQ+ - this is optional and should only be done if the user is LGBTQ+. (e.g. "LGBTQ+ events", "LGBTQ+ community", "LGBTQ+ support group", etc.)
 
-        5. INTEREST-BASED QUERIES:
+        5. SINGLE-SPECIFIC QUERY FOR NON-LGBTQ+ USERS (OPTIONAL):
+        - Create one single-specific query if the user is single and not LGBTQ+ - this is optional and should only be done if the user is single and not LGBTQ+. Include the age bracket if relevant (e.g. "single events", "speed dating {age_bracket}", etc.)
+
+        6. SINGLE-SPECIFIC QUERY FOR LGBTQ+ USERS (OPTIONAL):
+        - Create one single-specific query if the user is single and LGBTQ+ - this is optional and should only be done if the user is single and LGBTQ+. (e.g. "LGBTQ+ speed dating", "LGBTQ+ singles", etc.)
+
+        7. INTEREST-BASED QUERIES:
         - Keep all interest queries to 4 words or less
-        - Group related interests when logical (e.g., "tech business", "hiking outdoors")
-        - DO NOT force unrelated combinations. (e.g. "fashion swimming" is NOT a good query)
-        - DO NOT include age bracket in interest queries, only include it in goals-based queries
+        - DO NOT include age bracket in interest queries, only include it in goal-based queries
 
-        6. PROHIBITED TERMS:
-        - NO generic terms like "events", "meetups", "community", "group", "gathering", "enthusiasts", "near me" unless they are absolutely necessary
-        - NO standalone "networking" or "professional networking"
-        - NO generic terms like "professional connections", "find collaborators", "business collaboration", or similar terms
+        8. PROHIBITED TERMS:
+        - NO generic terms (e.g. "events", "meetups", "community", "group", "gathering", "enthusiasts", "near me", "weekend") unless they are absolutely necessary
+        - NO generic queries (e.g. "professional connections", "find collaborators", "business collaboration", "networking", "professional networking", "find a job", "job fairs", "job training")
 
-        7. QUERY DIVERSITY:
+        9. QUERY DIVERSITY:
         - Avoid overly similar queries that would return the same results. For example, repeating the same query with different variations of the same word
         - Focus on specificity and relevance
 
@@ -75,7 +84,8 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
         "age_bracket": get_age_bracket(user_profile["age"]),
         "occupation": user_profile["occupation"],
         "gender": user_profile["gender"],
-        "is_lgbtq": user_profile["sexual_orientation"] != "straight"
+        "is_lgbtq": user_profile["sexual_orientation"] != "straight",
+        "is_single": user_profile["relationship_status"] == "single"
     })
 
     if hasattr(response, 'content'):
@@ -89,4 +99,5 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
     
     response_str = str(response)
     keywords = [keyword.strip() for keyword in response_str.split(",")]
-    return list(dict.fromkeys(keywords))
+    keywords = list(dict.fromkeys(keywords))
+    return remove_prohibited_queries(keywords)

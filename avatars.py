@@ -33,7 +33,7 @@ user_profile_main: UserProfile = {
         "end_date": datetime(2025, 12, 31)
     },
     "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
-    "goals": ["network professionally", "make new friends", "find a business partner"],
+    "goals": ["make new friends", "find a business partner"],
     "occupation": "software engineer"
 }
 
@@ -213,6 +213,6 @@ user_profile_main_other: UserProfile = {
         "end_date": datetime(2025, 12, 31)
     },
     "interests": ["reading", "sci-fi", "running", "travel", "coffee", "art", "music", "museums", "swimming", "offline", "hiking", "nature", "outdoors", "psychology", "tattoos", "fashion", "movies", "cinematography", "talks"],
-    "goals": ["find a new job", "network professionally"],
+    "goals": ["find a new job"],
     "occupation": "nurse"
 }

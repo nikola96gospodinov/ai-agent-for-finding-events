@@ -81,7 +81,7 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         text_to_parse = str(event_details)
 
     event_details = str(text_to_parse)
-    og_event_details = event_details
+    og_event_details = event_details # Store the original event details for debugging
     
     # Sometimes the model doesn't play along so we need to extract the dictionary from the response if there is more to the response than just the dictionary
     event_details = event_details.strip()
