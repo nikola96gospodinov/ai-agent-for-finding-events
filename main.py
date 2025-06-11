@@ -17,32 +17,33 @@ if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)
 
 # Due to limitations in the Gemini API, we're using exclusively Ollama for now
-model = ChatOllama(model="gemma3:12b")
-# model = ChatGoogleGenerativeAI(
-#     model='gemini-2.0-flash-exp',
-#     api_key=os.environ["GEMINI_API_KEY"]
-# )
+local_model = ChatOllama(model="gemma3:12b")
+powerful_model = ChatGoogleGenerativeAI(
+    model='gemini-2.0-flash-exp',
+    api_key=os.environ["GEMINI_API_KEY"] # type: ignore
+)
 
-# # Verify the model is working before proceeding
-# try:
-#     model.invoke("Hello")
-#     print("Google Generative AI is working")
-# except Exception as e:
-#     print(f"Error connecting to Google Generative AI: {e}")
-#     # Fallback to local model if Google API fails
-#     model = fallback_model
+# Verify the model is working before proceeding
+try:
+    powerful_model.invoke("Hello")
+    print("Google Generative AI is working")
+except Exception as e:
+    print(f"Error connecting to Google Generative AI: {e}")
+    # Fallback to local model if Google API fails
+    powerful_model = local_model
 
-search_keywords = get_search_keywords_for_event_sites(user_profile_main_other, model)
+# Search terms are generated using the powerful model as this is quite important for finding the right events
+search_keywords = get_search_keywords_for_event_sites(user_profile_main_other, powerful_model)
 
 event_disqualifier = EventDisqualifier(user_profile_main_other)
-event_relevance_calculator = EventRelevanceCalculator(model, user_profile_main_other)
+event_relevance_calculator = EventRelevanceCalculator(local_model, user_profile_main_other)
 
 async def check_event(event_link: str):
     print(f"Checking event: {event_link}")
 
     webpage_content = await scrap_page(event_link)
 
-    event_details = extract_event_details(webpage_content, model)
+    event_details = extract_event_details(webpage_content, local_model)
     
     if event_details is None:
         print("Something went wrong while extracting event details.")
