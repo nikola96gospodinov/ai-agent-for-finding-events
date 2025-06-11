@@ -2,6 +2,7 @@ from datetime import datetime
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 import ast
+import re
 
 from custom_typings import EventDetails, gender_bias_options, sexual_orientation_bias_options, relationship_status_bias_options, event_format_options
 from utils import get_address_coordinates
@@ -54,6 +55,7 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
             "is_sold_out": False
         }}
         Don't do any formatting. Just return the Python dictionary as plain text. Under any circumstances, don't use ```python or ``` in the response.
+        Under any circumstances, don't return JSON and make sure the response is a valid Python dictionary. This is crucial.
 
         If there is no information about a particular detail, return None for that detail.
     """
@@ -79,12 +81,26 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         text_to_parse = str(event_details)
 
     event_details = str(text_to_parse)
+    og_event_details = event_details
     
-    # Sometimes the model doesn't play along
-    if (event_details.startswith("```python") or event_details.startswith("```json") or event_details.endswith("```")):
-        event_details = event_details.replace("```python", "").replace("```json", "").replace("```", "")
+    # Sometimes the model doesn't play along so we need to extract the dictionary from the response if there is more to the response than just the dictionary
+    event_details = event_details.strip()
+    dict_pattern = r'\{.*\}'
+    dict_match = re.search(dict_pattern, event_details, re.DOTALL)
+    if dict_match:
+        event_details = dict_match.group(0)
     
-    event_details_result: EventDetails | None = ast.literal_eval(event_details)
+    # Handle case where model returns None
+    if event_details.lower() == "none":
+        return None
+        
+    try:
+        event_details_result: EventDetails | None = ast.literal_eval(event_details)
+    except (SyntaxError, ValueError) as e:
+        print(f"Error parsing event details: {e}")
+        print(f"Original event details: {og_event_details}")
+        print(f"Raw event details: {event_details}")
+        return None
 
     if event_details_result and event_details_result.get("location_of_event") and event_details_result["location_of_event"].get("full_address"):
         coordinates = get_address_coordinates(event_details_result["location_of_event"].get("full_address"))

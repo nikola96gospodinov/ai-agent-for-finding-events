@@ -36,14 +36,14 @@ except Exception as e:
 search_keywords = get_search_keywords_for_event_sites(user_profile_main_other, powerful_model)
 
 event_disqualifier = EventDisqualifier(user_profile_main_other)
-event_relevance_calculator = EventRelevanceCalculator(local_model, user_profile_main_other)
+event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile_main_other)
 
 async def check_event(event_link: str):
     print(f"Checking event: {event_link}")
 
     webpage_content = await scrap_page(event_link)
 
-    event_details = extract_event_details(webpage_content, local_model)
+    event_details = extract_event_details(webpage_content, powerful_model)
     
     if event_details is None:
         print("Something went wrong while extracting event details.")
