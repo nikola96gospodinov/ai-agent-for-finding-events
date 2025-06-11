@@ -102,7 +102,7 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
         print(f"Raw event details: {event_details}")
         return None
 
-    if event_details_result and event_details_result.get("location_of_event") and event_details_result["location_of_event"].get("full_address"):
+    if event_details_result and isinstance(event_details_result.get("location_of_event"), dict) and event_details_result["location_of_event"].get("full_address"):
         coordinates = get_address_coordinates(event_details_result["location_of_event"].get("full_address"))
         if coordinates and "latitude" in coordinates and "longitude" in coordinates:
             event_details_result["location_of_event"]["latitude"] = coordinates["latitude"]
