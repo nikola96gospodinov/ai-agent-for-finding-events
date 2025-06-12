@@ -22,7 +22,8 @@ class EventDisqualifier:
             self._is_event_suitable_for_sexual_orientation,
             self._is_event_suitable_for_relationship_status,
             self._is_event_suitable_for_event_format,
-            self._is_event_within_acceptable_times
+            self._is_event_within_acceptable_times,
+            self._is_past_event
         ]
         
         return all(check(event_details) for check in checks)
@@ -207,5 +208,17 @@ class EventDisqualifier:
                 if end_time > end_time_user:
                     print("Event is after the user's acceptable times")
                     return False
+
+        return True
+    
+    def _is_past_event(self, event_details: EventDetails) -> bool:
+        event_date_str = event_details["date_of_event"]
+        if not event_date_str:
+            return True
+
+        event_date = datetime.strptime(event_date_str, "%d-%m-%Y")
+        if event_date < datetime.now():
+            print("Event is in the past")
+            return False
 
         return True
