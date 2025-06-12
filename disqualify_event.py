@@ -23,8 +23,8 @@ class EventDisqualifier:
             self._is_event_suitable_for_relationship_status,
             self._is_event_suitable_for_event_format,
             self._is_event_within_acceptable_times,
-            self._is_past_event,
-            self._is_event_page_empty
+            self._is_not_past_event,
+            self._is_event_page_non_empty
         ]
         
         return all(check(event_details) for check in checks)
@@ -212,7 +212,7 @@ class EventDisqualifier:
 
         return True
     
-    def _is_past_event(self, event_details: EventDetails) -> bool:
+    def _is_not_past_event(self, event_details: EventDetails) -> bool:
         event_date_str = event_details["date_of_event"]
         if not event_date_str:
             return True
@@ -224,9 +224,9 @@ class EventDisqualifier:
 
         return True
     
-    def _is_event_page_empty(self, event_details: EventDetails) -> bool:
+    def _is_event_page_non_empty(self, event_details: EventDetails) -> bool:
         if not event_details["title"] and not event_details["date_of_event"] and not event_details["start_time"] and not event_details["end_time"] and not event_details["location_of_event"] and not event_details["event_format"]:
             print("Event page is empty")
-            return True
+            return False
 
-        return False
+        return True
