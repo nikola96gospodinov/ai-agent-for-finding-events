@@ -57,9 +57,9 @@ class EventRelevanceCalculator:
 
             STEP 3: DEMOGRAPHIC COMPATIBILITY (0-10 POINTS)
             Evaluate how well the event aligns with the user's personal attributes.
-            - **Age Appropriateness** (4 points): How well the event suits the user's age group. Only applicable if the event has a specific age range. If the event has no age range the score is 0.
-            - **Relationship Status Compatibility** (3 points): How appropriate the event is given the user's relationship status. Only applicable if the event has a specific relationship status requirement. If the event has no relationship status requirement the score is 0.
-            - **Gender/Sexual orientation Relevance** (3 points): Whether the event is inclusive of or specifically tailored to the user's gender/sexual orientation. Only applicable if the event has a specific gender/sexual orientation requirement. If the event has no gender/sexual orientation requirement the score is 0.
+            - **Age Appropriateness** (4 points): Only applicable if the event has a specific age range. If the event has no age range and is open to all ages the score is 0.
+            - **Relationship Status Compatibility** (3 points): Only applicable if the event has a specific relationship status requirement. If the event has no relationship status and is open to all relationship statuses the score is 0.
+            - **Gender/Sexual orientation Relevance** (3 points): Only applicable if the event has a specific gender/sexual orientation requirement. If the event has no gender/sexual orientation and is open to all gender/sexual orientations the score is 0.
 
             DEDUCTION SYSTEM (MAX: 50 POINTS)
 
