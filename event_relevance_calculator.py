@@ -5,7 +5,7 @@ from typing import List, Dict
 import re
 
 from custom_typings import UserProfile, Location, EventDetails
-from utils import calculate_distance
+from utils import calculate_distance, retry_with_backoff
 
 class EventRelevanceCalculator:
     def __init__(self, model: BaseChatModel, user_profile: UserProfile):
@@ -105,54 +105,63 @@ class EventRelevanceCalculator:
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | self.model
 
-        # Include the webpage content in the prompt
-        result = chain.invoke({
-            "occupation": self.user_profile["occupation"],
-            "interests": self.user_profile["interests"],
-            "goals": self.user_profile["goals"],
-            "age": self.user_profile["age"],
-            "gender": self.user_profile["gender"],
-            "sexual_orientation": self.user_profile["sexual_orientation"],
-            "relationship_status": self.user_profile["relationship_status"],
-            "webpage_content": webpage_content
-        })
+        try:
+            result = retry_with_backoff(
+                chain.invoke,
+                max_retries=5,
+                base_delay=2.0,
+                input={
+                    "occupation": self.user_profile["occupation"],
+                    "interests": self.user_profile["interests"],
+                    "goals": self.user_profile["goals"],
+                    "age": self.user_profile["age"],
+                    "gender": self.user_profile["gender"],
+                    "sexual_orientation": self.user_profile["sexual_orientation"],
+                    "relationship_status": self.user_profile["relationship_status"],
+                    "webpage_content": webpage_content
+                }
+            )
 
-        if hasattr(result, 'content'):
-            result = result.content
+            if hasattr(result, 'content'):
+                result = result.content
 
-        print(f"Event relevance score: {result}")
+            print(f"Event relevance score: {result}")
 
-        if isinstance(result, str):
-            text_to_parse = result
-        elif isinstance(result, BaseMessage):
-            text_to_parse = result.content
-        elif isinstance(result, (List, Dict)):
-            text_to_parse = str(result)
-        else:
-            print(f"Unexpected result type: {type(result)}")
+            if isinstance(result, str):
+                text_to_parse = result
+            elif isinstance(result, BaseMessage):
+                text_to_parse = result.content
+            elif isinstance(result, (List, Dict)):
+                text_to_parse = str(result)
+            else:
+                print(f"Unexpected result type: {type(result)}")
+                return 0
+
+            # Convert to string to ensure we can split
+            text_to_parse = str(text_to_parse)
+            
+            # Look for a list pattern like [X, Y]
+            list_match = re.search(r'\[(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)\]', text_to_parse)
+            if list_match:
+                try:
+                    first_num = float(list_match.group(1))
+                    second_num = float(list_match.group(2))
+
+                    final_score = first_num - second_num
+                    if final_score < 0:
+                        return 0
+                    else:
+                        return final_score
+                except ValueError:
+                    print(f"Could not convert scores '{list_match.group(1)}' and '{list_match.group(2)}' to numbers")
+                    return 0
+            
+            print(f"Could not get the scores from '{text_to_parse}'")
             return 0
 
-        # Convert to string to ensure we can split
-        text_to_parse = str(text_to_parse)
-        
-        # Look for a list pattern like [X, Y]
-        list_match = re.search(r'\[(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)\]', text_to_parse)
-        if list_match:
-            try:
-                first_num = float(list_match.group(1))
-                second_num = float(list_match.group(2))
-
-                final_score = first_num - second_num
-                if final_score < 0:
-                    return 0
-                else:
-                    return final_score
-            except ValueError:
-                print(f"Could not convert scores '{list_match.group(1)}' and '{list_match.group(2)}' to numbers")
-                return 0
-        
-        print(f"Could not get the scores from '{text_to_parse}'")
-        return 0
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
+            return 0
             
     def _calculate_price_score(self, price_of_event: int | float | None, budget: int | float) -> float:        
         if price_of_event is None:

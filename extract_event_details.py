@@ -5,7 +5,7 @@ import ast
 import re
 
 from custom_typings import EventDetails, gender_bias_options, sexual_orientation_bias_options, relationship_status_bias_options, event_format_options
-from utils import get_address_coordinates
+from utils import get_address_coordinates, retry_with_backoff
 
 def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> EventDetails | None:
     if webpage_content is None:
@@ -63,14 +63,19 @@ def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> 
     event_details_prompt = ChatPromptTemplate.from_template(extract_details_template)
     event_details_chain = event_details_prompt | model
 
-    event_details = event_details_chain.invoke({
-        "webpage_content": webpage_content,
-        "current_year": datetime.now().year,
-        "gender_bias_options": gender_bias_options,
-        "sexual_orientation_bias_options": sexual_orientation_bias_options,
-        "relationship_status_bias_options": relationship_status_bias_options,
-        "event_format_options": event_format_options
-    })
+    event_details = retry_with_backoff(
+        event_details_chain.invoke,
+        max_retries=5,
+        base_delay=2.0,
+        input={
+            "webpage_content": webpage_content,
+            "current_year": datetime.now().year,
+            "gender_bias_options": gender_bias_options,
+            "sexual_orientation_bias_options": sexual_orientation_bias_options,
+            "relationship_status_bias_options": relationship_status_bias_options,
+            "event_format_options": event_format_options
+        }
+    )
 
     if hasattr(event_details, 'content'):
         event_details = event_details.content
