@@ -217,7 +217,7 @@ class EventDisqualifier:
             return True
 
         event_date = datetime.strptime(event_date_str, "%d-%m-%Y")
-        if event_date < datetime.now():
+        if event_date < datetime.now().replace(hour=0, minute=0, second=0, microsecond=0):
             print("Event is in the past")
             return False
 

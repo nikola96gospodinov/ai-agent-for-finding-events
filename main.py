@@ -16,8 +16,11 @@ from avatars import user_profile_main, user_profile_creative, user_profile_sport
 if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)
 
-# Due to limitations in the Gemini API, we're using exclusively Ollama for now
 local_model = ChatOllama(model="gemma3:12b")
+great_free_model = ChatGoogleGenerativeAI(
+    model='gemma-3-27b-it',
+    api_key=os.environ["GEMINI_API_KEY"] # type: ignore
+)
 powerful_model = ChatGoogleGenerativeAI(
     model='gemini-2.0-flash',
     api_key=os.environ["GEMINI_API_KEY"] # type: ignore
@@ -32,18 +35,17 @@ except Exception as e:
     # Fallback to local model if Google API fails
     powerful_model = local_model
 
-# Search terms are generated using the powerful model as this is quite important for finding the right events
-search_keywords = get_search_keywords_for_event_sites(user_profile_main, powerful_model)
+search_keywords = get_search_keywords_for_event_sites(user_profile_main, great_free_model)
 
 event_disqualifier = EventDisqualifier(user_profile_main)
-event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile_main)
+event_relevance_calculator = EventRelevanceCalculator(great_free_model, user_profile_main)
 
 async def check_event(event_link: str):
     print(f"Checking event: {event_link}")
 
     webpage_content = await scrap_page(event_link)
 
-    event_details = extract_event_details(webpage_content, powerful_model)
+    event_details = extract_event_details(webpage_content, great_free_model)
     
     if event_details is None:
         print("Something went wrong while extracting event details.")
