@@ -32,7 +32,7 @@ user_profile_main: UserProfile = {
         "start_date": datetime(2025, 4, 1),
         "end_date": datetime(2025, 12, 31)
     },
-    "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "offline", "architecture", "interior design"],
+    "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "phone free", "architecture", "interior design"],
     "goals": ["make new friends", "find a business partner"],
     "occupation": "software engineer"
 }
@@ -212,7 +212,7 @@ user_profile_main_other: UserProfile = {
         "start_date": datetime(2025, 5, 1),
         "end_date": datetime(2025, 12, 31)
     },
-    "interests": ["reading", "sci-fi", "running", "travel", "coffee", "art", "music", "museums", "swimming", "offline", "hiking", "nature", "outdoors", "psychology", "tattoos", "fashion", "movies", "cinematography", "talks"],
+    "interests": ["reading", "sci-fi", "running", "travel", "coffee", "art", "music", "museums", "swimming", "phone free", "hiking", "nature", "outdoors", "psychology", "tattoos", "fashion", "movies", "cinematography", "talks"],
     "goals": ["find a new job"],
     "occupation": "nurse"
 }

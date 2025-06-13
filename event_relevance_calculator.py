@@ -22,49 +22,37 @@ class EventRelevanceCalculator:
             THE WEB PAGE CONTENT:
             {webpage_content}
 
-            USER INFORMATION:
-            - Age: {age}
-            - Gender: {gender}
-            - Sexual Orientation: {sexual_orientation}
-            - Relationship Status: {relationship_status}
-            - Occupation: {occupation}
-            - Interests: {interests}
-            - Goals: {goals}
-
             SCORING SYSTEM (MAX: 90 POINTS)
 
-            STEP 1: INTEREST MATCH (0-45 POINTS)
-            Evaluate how strongly the event aligns with the user's stated interests.
-            - **Perfect Match** (10 points): Core to the event title or primary theme
-            - **Strong Match** (6 points): Prominently mentioned as topic/activity
-            - **Moderate Match** (3 points): Secondary or partial focus
-            - **Adjacent Match** (1 points): Indirect but thematically relevant
-            > Total capped at 45 points
+            STEP 1: INTEREST MATCH (0-50 POINTS)
+            Evaluate how strongly the event aligns with the user's stated interests
+            Interests are: {interests}
+            - **Exact Match** (10 points): Core to the event title or primary theme
+            - **Partial Match** (5 points): Mentioned as topic/activity but not the core theme
+            - **Weak Match** (1 points): Indirect but thematically relevant
+            > Total capped at 50 points. Only use the fixed values (10, 5, 1) for this step.
 
-            STEP 2: GOAL ALIGNMENT (0-35 POINTS)
+            STEP 2: GOAL FULFILLMENT MATCH (0-30 POINTS)
             Assess how well the event supports the user's goals.
-
-            2A. **Goal Opportunity Quality** (0-20 points):
-            - Exceptional opportunity: 20
-            - Strong opportunity: 15
-            - Moderate opportunity: 10
-            - Weak or limited: 5
-
-            2B. **Goal Efficiency** (0-15 points):
-            - Multiple goals addressed well: 15
-            - One goal clearly supported: 10
-            - Partial/indirect support: 5
+            Goals are: {goals}
+            - **Exact Match** (15 points): The event is explicitly designed to help the user achieve one of their goals
+            - **Partial Match** (5 points): The event is indirectly related to the user's goal
+            - **Weak Match** (1 points): The event is only tangentially related to the user's goal
+            > Total capped at 30 points. Only use the fixed values (15, 5, 1) for this step.
 
             STEP 3: DEMOGRAPHIC COMPATIBILITY (0-10 POINTS)
-            Evaluate how well the event aligns with the user's personal attributes.
-            - **Age Appropriateness** (4 points): Only applicable if the event has a specific age range. If the event has no age range and is open to all ages the score is 0.
-            - **Relationship Status Compatibility** (3 points): Only applicable if the event has a specific relationship status requirement. If the event has no relationship status and is open to all relationship statuses the score is 0.
-            - **Gender/Sexual orientation Relevance** (3 points): Only applicable if the event has a specific gender/sexual orientation requirement. If the event has no gender/sexual orientation and is open to all gender/sexual orientations the score is 0.
+            Check if the event is targeted to the user's demographic.
+            IMPORTANT: Only add points if the event has a specific demographic. If an event is open for all ages, relationship statuses, or gender/sexual orientations, the score is 0.
+            - **Age Appropriateness** (4 points). User's age is {age}
+            - **Gender/Sexual orientation Relevance** (3 points). User's gender is {gender} and sexual orientation is {sexual_orientation}
+            - **Relationship Status Compatibility** (3 points). User's relationship status is {relationship_status}
+            > Maximum 10 points. Only use the fixed values (4, 3) for this step.
 
             DEDUCTION SYSTEM (MAX: 50 POINTS)
 
             STEP 1: INDUSTRY MISMATCH DEDUCTION (0-50 POINTS)
             IMPORTANT: Only apply this deduction if The event's primary purpose is networking (this is critical for this deduction to be applied)
+            User's occupation is {occupation}
 
             Important exception is that if the event aligns with a goal of the user (e.g. "find a business partner", "find a co-founder", "find a new career"), this deduction is not applied and the score is 0.
             For example, if one of the user's goals is to "find a business partner", "find a co-founder" or similar, and the event is for "entrepreneurs, business owners, and investors", this deduction is not applied even if the user is not a business owner or a investor and the score is 0 and everything else for this point is ignored.
@@ -73,10 +61,10 @@ class EventRelevanceCalculator:
             - **Complete industry mismatch** (50 points): Event is explicitly and exclusively for professionals in a completely different field with no overlap with user's occupation
             Example: Software Engineer attending "Beauty & Wellness Industry Professionals" or "Real Estate Developers" event
             
-            - **Significant industry mismatch** (30 points): Event is explicitly for professionals in a different field that has some overlap with user's occupation
+            - **Significant industry mismatch** (35 points): Event is explicitly for professionals in a different field that has some overlap with user's occupation
             Example: Software Engineer attending "UI Design Professionals" or "Copywriting Professionals" event
             
-            - **Overly broad or undefined audience** (15 points): Event is for a very generic professional audience with no industry focus, or doesn't specify the target professional audience at all
+            - **Overly broad or undefined audience** (25 points): Event is for a very generic professional audience with no industry focus, or doesn't specify the target professional audience at all
             Example: "Networking Mixer" or "Working Professional Networking" or "Creative Professionals" with no industry specification or too broad of an audience.
             
             - **No deduction** (0 points): Apply in any of these cases:
@@ -84,13 +72,12 @@ class EventRelevanceCalculator:
             * Event has clear overlap with the user's field, interests, and/or goals
 
             IMPORTANT NOTES FOR DEDUCTION SCORE:
-            - This deduction uses fixed values (50, 30, 15, or 0) - there are no partial deductions between these values
+            - This deduction uses fixed values (50, 35, 25, or 0) - there are no partial deductions between these values
             - Only apply the highest applicable deduction (do not stack them)
 
             IMPORTANT RULES FOR RELEVANCE SCORE:
+            - Never exceed the maximum score for each category.
             - Keep two scores separate: one for the relevance score and one for the deduction score.
-            - Use the full range of scores for each category.
-            - Each category must use at least 3 different point values (not just min/max)
             - Always justify each score with specific evidence from the event description.
             - At least one interest match is required for any score above 0.
             - Use varied phrasing and tone in your reasoning (analytical, conversational, comparative).
