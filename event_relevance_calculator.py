@@ -13,7 +13,6 @@ class EventRelevanceCalculator:
         self.user_profile = user_profile
 
     def _calculate_event_relevance_based_on_interests_and_goals(self, webpage_content: str) -> float | int:
-
         template = """
             You are a helpful personal assistant who evaluates events for relevance to a given user.
 
@@ -22,7 +21,7 @@ class EventRelevanceCalculator:
             THE WEB PAGE CONTENT:
             {webpage_content}
 
-            SCORING SYSTEM (MAX: 90 POINTS)
+            SCORING SYSTEM (MAX: 80 POINTS)
 
             STEP 1: INTEREST MATCH (0-50 POINTS)
             Evaluate how strongly the event aligns with the user's stated interests
@@ -39,15 +38,6 @@ class EventRelevanceCalculator:
             - **Partial Match** (5 points): The event is indirectly related to the user's goal
             - **Weak Match** (1 points): The event is only tangentially related to the user's goal
             > Total capped at 30 points. Only use the fixed values (15, 5, 1) for this step.
-
-            STEP 3: DEMOGRAPHIC COMPATIBILITY (0-10 POINTS)
-            IMPORTANT: Only award points if the event EXPLICITLY states a target demographic. If ANY demographic category is open/unrestricted, then under no circumstances award points for that category and the score is 0.
-            IF the event has NO explicit demographic restrictions mentioned then award 0 points for this step.
-            IF the event uses phrases like "open to all", "everyone welcome", then award 0 points for this step.
-            - **Age Appropriateness** (4 points). Event explicitly targets an age group AND user's age ({age}) fits the age group
-            - **Gender/Sexual orientation Relevance** (3 points). Event explicitly targets gender/sexual orientation AND user's gender ({gender}) and/or sexual orientation ({sexual_orientation}) fits
-            - **Relationship Status Compatibility** (3 points). Event explicitly targets relationship status AND user's status ({relationship_status}) fits
-            > Maximum 10 points. Only use the fixed values (4, 3) for this step.
 
             DEDUCTION SYSTEM (MAX: 50 POINTS)
 
@@ -102,10 +92,6 @@ class EventRelevanceCalculator:
                     "occupation": self.user_profile["occupation"],
                     "interests": self.user_profile["interests"],
                     "goals": self.user_profile["goals"],
-                    "age": self.user_profile["age"],
-                    "gender": self.user_profile["gender"],
-                    "sexual_orientation": self.user_profile["sexual_orientation"],
-                    "relationship_status": self.user_profile["relationship_status"],
                     "webpage_content": webpage_content
                 }
             )
@@ -136,10 +122,7 @@ class EventRelevanceCalculator:
                     second_num = float(list_match.group(2))
 
                     final_score = first_num - second_num
-                    if final_score < 0:
-                        return 0
-                    else:
-                        return final_score
+                    return final_score
                 except ValueError:
                     print(f"Could not convert scores '{list_match.group(1)}' and '{list_match.group(2)}' to numbers")
                     return 0
@@ -183,6 +166,36 @@ class EventRelevanceCalculator:
         distance_ratio = 1 - (distance / self.user_profile["distance_threshold"]["distance_threshold"])
         return 5 * max(0, distance_ratio)
     
+    def _calculate_demographic_score(self, event_details: EventDetails) -> float:
+        score = 0
+
+        if event_details["age_range"] and self.user_profile["age"]:
+            # +18 exception
+            if self.user_profile["age"] >= 18 and event_details["age_range"]["min_age"] == 18 and not event_details["age_range"]["max_age"]:
+                score += 1
+            else:
+                score += 4
+
+        if event_details["gender_bias"] and self.user_profile["gender"]:
+            if len(event_details["gender_bias"]) == 1:
+                score += 3
+            else:
+                score += 1
+
+        if event_details["relationship_status_bias"] and self.user_profile["relationship_status"]:
+            if len(event_details["relationship_status_bias"]) == 1:
+                score += 3
+            else:
+                score += 1
+
+        if event_details["sexual_orientation_bias"] and self.user_profile["sexual_orientation"]:
+            if len(event_details["sexual_orientation_bias"]) == 1:
+                score += 3
+            else:
+                score += 1
+        
+        return min(score, 10)
+
     def calculate_event_relevance_score(self, webpage_content: str | None, event_details: EventDetails) -> float:
         if webpage_content is None:
             return 0
@@ -190,6 +203,7 @@ class EventRelevanceCalculator:
         relevance_score = self._calculate_event_relevance_based_on_interests_and_goals(webpage_content)
         price_score = self._calculate_price_score(event_details["price_of_event"], self.user_profile["budget"])
         distance_score = self._calculate_distance_score(event_details["location_of_event"])
+        demographic_score = self._calculate_demographic_score(event_details)
         
-        total_score = relevance_score + price_score + distance_score
+        total_score = relevance_score + price_score + distance_score + demographic_score
         return round(total_score, 1)
