@@ -67,4 +67,21 @@ class UserProfile(TypedDict):
     location: Location 
     distance_threshold: DistanceThreshold 
     time_commitment_in_minutes: int 
-    timeframe: Timeframe 
+    timeframe: Timeframe
+
+class Interests(TypedDict):
+    exact_match: int
+    partial_match: int
+    weak_match: int
+    
+class Goals(TypedDict):
+    exact_match: int
+    partial_match: int
+    weak_match: int
+
+industry_mismatch_options = Literal["complete_mismatch", "significant_mismatch", "overly_broad_mismatch", "no_mismatch"]
+
+class ScoringSystem(TypedDict):
+    interests: Interests
+    goals: Goals
+    industry_mismatch: industry_mismatch_options
