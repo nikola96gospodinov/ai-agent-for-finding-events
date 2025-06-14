@@ -41,11 +41,12 @@ class EventRelevanceCalculator:
             > Total capped at 30 points. Only use the fixed values (15, 5, 1) for this step.
 
             STEP 3: DEMOGRAPHIC COMPATIBILITY (0-10 POINTS)
-            Check if the event is targeted to the user's demographic.
-            IMPORTANT: Only add points if the event has a specific demographic. If an event is open for all ages, relationship statuses, or gender/sexual orientations, the score is 0.
-            - **Age Appropriateness** (4 points). User's age is {age}
-            - **Gender/Sexual orientation Relevance** (3 points). User's gender is {gender} and sexual orientation is {sexual_orientation}
-            - **Relationship Status Compatibility** (3 points). User's relationship status is {relationship_status}
+            IMPORTANT: Only award points if the event EXPLICITLY states a target demographic. If ANY demographic category is open/unrestricted, then under no circumstances award points for that category and the score is 0.
+            IF the event has NO explicit demographic restrictions mentioned then award 0 points for this step.
+            IF the event uses phrases like "open to all", "everyone welcome", then award 0 points for this step.
+            - **Age Appropriateness** (4 points). Event explicitly targets an age group AND user's age ({age}) fits the age group
+            - **Gender/Sexual orientation Relevance** (3 points). Event explicitly targets gender/sexual orientation AND user's gender ({gender}) and/or sexual orientation ({sexual_orientation}) fits
+            - **Relationship Status Compatibility** (3 points). Event explicitly targets relationship status AND user's status ({relationship_status}) fits
             > Maximum 10 points. Only use the fixed values (4, 3) for this step.
 
             DEDUCTION SYSTEM (MAX: 50 POINTS)
