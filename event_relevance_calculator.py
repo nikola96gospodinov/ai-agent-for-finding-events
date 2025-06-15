@@ -50,7 +50,7 @@ class EventRelevanceCalculator:
             DEDUCTION SYSTEM
 
             STEP 1: INDUSTRY MISMATCH DEDUCTION
-            IMPORTANT: Only apply this deduction if The event's primary purpose is networking (this is critical for this deduction to be applied)
+            IMPORTANT: Only apply this deduction if the event's primary purpose is professional networking and the event is not for the user's industry or tightly related industries.
             User's occupation is {occupation}
 
             Important exception is that if the event aligns with a goal of the user (e.g. "find a business partner", "find a co-founder", "find a new career"), this deduction is not applied and the score is 0.
@@ -58,11 +58,11 @@ class EventRelevanceCalculator:
 
             Evaluate the industry mismatch against the user's occupation:
             - **Complete industry mismatch**: Event is explicitly and exclusively for professionals in a completely different field with no overlap with user's occupation
-            Example: Software Engineer attending "Beauty & Wellness Industry Professionals" or "Real Estate Developers" event
+                Example: Software Engineer attending "Beauty & Wellness Industry Professionals" or "Real Estate Developers" event
             - **Significant industry mismatch**: Event is explicitly for professionals in a different field that has some overlap with user's occupation
-            Example: Software Engineer attending "UI Design Professionals" or "Copywriting Professionals" event
+                Example: Software Engineer attending "UI Design Professionals" or "Copywriting Professionals" event
             - **Overly broad or undefined audience**: Event is for a very generic professional audience with no industry focus, or doesn't specify the target professional audience at all
-            Example: "Networking Mixer" or "Working Professional Networking" or "Creative Professionals" with no industry specification or too broad of an audience.
+                Example: "Networking Mixer" or "Working Professional Networking" or "Creative Professionals" with no industry specification or too broad of an audience.
             - **No deduction**: Apply in any of these cases:
                 * Event is for the user's industry or tightly related industries
                 * Event has clear overlap with the user's field, interests, and/or goals
