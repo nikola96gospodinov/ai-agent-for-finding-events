@@ -2,8 +2,8 @@ from typing import List
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
-from custom_typings import UserProfile
-from utils import get_age_bracket
+from app.models.user_profile_model import UserProfile
+from app.utils.utils import get_age_bracket
 
 def remove_prohibited_queries(queries: List[str]) -> List[str]:
     prohibited_queries = ["professional connections", "find collaborators", "business collaboration", "networking", "professional networking", "find a job", "job fairs", "job training", "career fair", "career fairs", "job fair", "job opportunities", "job search", "job openings", "improve skills", "career"]

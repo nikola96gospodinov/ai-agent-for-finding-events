@@ -4,14 +4,14 @@ from dotenv import load_dotenv, find_dotenv
 from langchain_ollama import ChatOllama
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from event_relevance_calculator import EventRelevanceCalculator
-from extract_event_details import extract_event_details
-from disqualify_event import EventDisqualifier
-from scrap_web_page import scrap_page
-from scrapers import get_event_links
-from get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
-from utils import remove_duplicates_based_on_title
-from avatars import user_profile_main, user_profile_creative, user_profile_sports, user_profile_family, user_profile_student, user_profile_main_other
+from app.services.event_processing.event_relevance_calculator import EventRelevanceCalculator
+from app.services.event_processing.extract_event_details import extract_event_details
+from app.services.event_processing.disqualify_event import EventDisqualifier
+from app.services.scraping.scrap_web_page import scrap_page
+from app.services.scraping.scrapers import get_event_links
+from app.services.event_processing.get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
+from app.utils.utils import remove_duplicates_based_on_title
+from app.services.avatars import user_profile_main, user_profile_creative, user_profile_sports, user_profile_family, user_profile_student, user_profile_main_other
 
 if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)

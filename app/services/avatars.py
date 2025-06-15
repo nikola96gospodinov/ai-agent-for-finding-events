@@ -1,5 +1,6 @@
-from custom_typings import UserProfile
 from datetime import datetime
+
+from app.models.user_profile_model import UserProfile
 
 user_profile_main: UserProfile = {
     "age": 28,

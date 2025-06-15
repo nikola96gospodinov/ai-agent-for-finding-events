@@ -8,6 +8,13 @@ setup(
         "langchain-ollama",
         "langchain-google-genai",
         "python-dotenv",
+        "fastapi",
+        "uvicorn",
+        "pydantic",
+        "pydantic-settings",
+        "sqlalchemy",
+        "python-jose[cryptography]",
+        "passlib[bcrypt]",
     ],
     python_requires=">=3.10",
 ) 

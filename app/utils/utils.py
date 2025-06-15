@@ -7,7 +7,7 @@ import random
 from typing import TypeVar, Callable, Any
 from google.api_core.exceptions import ResourceExhausted
 
-from custom_typings import Location, DistanceUnit
+from app.models.user_profile_model import Location, DistanceUnit
 
 def remove_duplicates_based_on_title(events: list[dict]) -> list[dict]:
     unique_events = []

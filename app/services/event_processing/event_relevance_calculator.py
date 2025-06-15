@@ -1,12 +1,30 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import BaseMessage
-from typing import List, Dict
+from typing import List, Dict, Literal, TypedDict
 import re
 import ast
 
-from custom_typings import UserProfile, Location, EventDetails, industry_mismatch_options, ScoringSystem
-from utils import calculate_distance, retry_with_backoff
+from app.models.user_profile_model import UserProfile, Location
+from app.models.events_model import EventDetails
+from app.utils.utils import calculate_distance, retry_with_backoff
+
+class Interests(TypedDict):
+    exact_match: int
+    partial_match: int
+    weak_match: int
+    
+class Goals(TypedDict):
+    exact_match: int
+    partial_match: int
+    weak_match: int
+
+industry_mismatch_options = Literal["complete_mismatch", "significant_mismatch", "overly_broad_mismatch", "no_mismatch"]
+
+class ScoringSystem(TypedDict):
+    interests: Interests
+    goals: Goals
+    industry_mismatch: industry_mismatch_options
 
 class EventRelevanceCalculator:
     def __init__(self, model: BaseChatModel, user_profile: UserProfile):

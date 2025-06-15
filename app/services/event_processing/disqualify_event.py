@@ -2,8 +2,10 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime, timedelta
 
-from custom_typings import EventDetails, UserProfile, Location
-from utils import calculate_distance
+from app.models.user_profile_model import UserProfile
+from app.models.events_model import EventDetails
+from app.models.user_profile_model import Location
+from app.utils.utils import calculate_distance
 
 class EventDisqualifier:
     def __init__(self, user_profile: UserProfile):
