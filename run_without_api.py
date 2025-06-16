@@ -16,14 +16,16 @@ from app.services.avatars import user_profile_main, user_profile_creative, user_
 if os.path.exists('.env'):
     load_dotenv(find_dotenv(), override=True)
 
-local_model = ChatOllama(model="gemma3:12b")
+local_model = ChatOllama(model="gemma3:12b", temperature=0.0)
 great_free_model = ChatGoogleGenerativeAI(
     model='gemma-3-27b-it',
-    api_key=os.environ["GEMINI_API_KEY"] # type: ignore
+    api_key=os.environ["GEMINI_API_KEY"], # type: ignore
+    temperature=0.0 
 )
 powerful_model = ChatGoogleGenerativeAI(
     model='gemini-2.0-flash',
-    api_key=os.environ["GEMINI_API_KEY"] # type: ignore
+    api_key=os.environ["GEMINI_API_KEY"], # type: ignore
+    temperature=0.0
 )
 
 # Verify the model is working before proceeding
