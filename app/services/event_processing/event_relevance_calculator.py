@@ -70,9 +70,8 @@ class EventRelevanceCalculator:
             STEP 1: INDUSTRY MISMATCH DEDUCTION
             IMPORTANT: Only apply this deduction if the event's primary purpose is professional networking and the event is not for the user's industry or tightly related industries.
             User's occupation is {occupation}
-
-            Important exception is that if the event aligns with a goal of the user (e.g. "find a business partner", "find a co-founder", "find a new career"), this deduction is not applied and the score is 0.
-            For example, if one of the user's goals is to "find a business partner", "find a co-founder" or similar, and the event is for "entrepreneurs, business owners, and investors", this deduction is not applied even if the user is not a business owner or a investor and the score is 0 and everything else for this point is ignored.
+                Important exception to that rule is that if the event aligns with a goal of the user (e.g. "find a business partner", "find a co-founder", "find a new career", "find investors"), this deduction is not applied and the score is 0.
+                For example, if one of the user's goals is to "find a business partner" or "find an investor", and the event is for "entrepreneurs, business owners, and investors", this deduction is not applied even if the user is not a business owner or a investor and the score is 0 and everything else for this point is ignored.
 
             Evaluate the industry mismatch against the user's occupation:
             - **Complete industry mismatch**: Event is explicitly and exclusively for professionals in a completely different field with no overlap with user's occupation
