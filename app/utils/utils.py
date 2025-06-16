@@ -19,6 +19,9 @@ def remove_duplicates_based_on_title(events: list[dict]) -> list[dict]:
 
     return unique_events
 
+def remove_events_with_negative_relevance(events: list[dict]) -> list[dict]:
+    return [event for event in events if event["relevance"] > 0]
+
 def extract_postcode_from_address(address: str) -> str | None:
     postcode_pattern = r'\b[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}\b'
     match = re.search(postcode_pattern, address)
