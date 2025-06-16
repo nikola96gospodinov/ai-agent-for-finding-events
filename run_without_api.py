@@ -10,7 +10,7 @@ from app.services.event_processing.disqualify_event import EventDisqualifier
 from app.services.scraping.scrap_web_page import scrap_page
 from app.services.scraping.scrapers import get_event_links
 from app.services.event_processing.get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
-from app.utils.utils import remove_duplicates_based_on_title, remove_events_with_negative_relevance
+from app.utils.event_utils import remove_duplicates_based_on_title, remove_events_with_negative_relevance
 from app.services.avatars import user_profile_main, user_profile_creative, user_profile_sports, user_profile_family, user_profile_student, user_profile_main_other
 
 if os.path.exists('.env'):

@@ -7,7 +7,8 @@ import ast
 
 from app.models.user_profile_model import UserProfile, Location
 from app.models.events_model import EventDetails
-from app.utils.utils import calculate_distance, retry_with_backoff
+from app.utils.address_utils import calculate_distance
+from app.utils.request_utils import retry_with_backoff
 
 class Interests(TypedDict):
     exact_match: int

@@ -6,7 +6,8 @@ import re
 
 from app.models.events_model import EventDetails
 from app.models.bias_options import gender_bias_options, sexual_orientation_bias_options, relationship_status_bias_options, event_format_options
-from app.utils.utils import get_address_coordinates, retry_with_backoff
+from app.utils.address_utils import get_address_coordinates
+from app.utils.request_utils import retry_with_backoff
 
 def extract_event_details(webpage_content: str | None, model: BaseChatModel) -> EventDetails | None:
     if webpage_content is None:
