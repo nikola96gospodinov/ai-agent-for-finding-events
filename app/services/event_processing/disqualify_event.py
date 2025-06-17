@@ -1,15 +1,9 @@
-from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime, timedelta
-from typing import cast, TypeGuard
 
 from app.models.user_profile_model import UserProfile
 from app.models.events_model import EventDetails
 from app.models.user_profile_model import Location
 from app.utils.address_utils import calculate_distance
-
-def is_not_none(val: str | None) -> TypeGuard[str]:
-    return val is not None
 
 def normalize_datetime(dt1: datetime, dt2: datetime) -> tuple[datetime, datetime]:
     """Take timezone from the aware datetime and apply it to the naive one."""
