@@ -1,11 +1,23 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime, timedelta
+from typing import cast, TypeGuard
 
 from app.models.user_profile_model import UserProfile
 from app.models.events_model import EventDetails
 from app.models.user_profile_model import Location
 from app.utils.address_utils import calculate_distance
+
+def is_not_none(val: str | None) -> TypeGuard[str]:
+    return val is not None
+
+def normalize_datetime(dt1: datetime, dt2: datetime) -> tuple[datetime, datetime]:
+    """Take timezone from the aware datetime and apply it to the naive one."""
+    if dt1.tzinfo is None and dt2.tzinfo is not None:
+        return dt1.replace(tzinfo=dt2.tzinfo), dt2
+    elif dt1.tzinfo is not None and dt2.tzinfo is None:
+        return dt1, dt2.replace(tzinfo=dt1.tzinfo)
+    return dt1, dt2
 
 class EventDisqualifier:
     def __init__(self, user_profile: UserProfile):
@@ -73,21 +85,19 @@ class EventDisqualifier:
         return within_threshold
 
     def _is_event_within_acceptable_timeframe(self, event_details: EventDetails) -> bool:
-        timeframe = self.user_profile.get("timeframe", {})
-        timeframe_start_date = timeframe.get("start_date")
-        timeframe_end_date = timeframe.get("end_date")
-        
-        event_date_str = event_details["date_of_event"]
-        if not event_date_str:
+        if not event_details.get("date_of_event"):
             return True
-            
-        event_date = datetime.strptime(event_date_str, "%d-%m-%Y")
-        
-        if timeframe_start_date and event_date < timeframe_start_date:
-            print("Event is before the timeframe start date")
-            return False
-        if timeframe_end_date and event_date > timeframe_end_date:
-            print("Event is after the timeframe end date")
+
+        event_date = datetime.strptime(event_details["date_of_event"], "%d-%m-%Y")  # type: ignore
+        start_date = self.user_profile["timeframe"]["start_date"]
+        end_date = self.user_profile["timeframe"]["end_date"]
+
+        # Normalize the datetimes
+        event_date, start_date = normalize_datetime(event_date, start_date)
+        event_date, end_date = normalize_datetime(event_date, end_date)
+
+        if event_date < start_date or event_date > end_date:
+            print("Event is outside the user's acceptable timeframe")
             return False
 
         return True
@@ -168,7 +178,12 @@ class EventDisqualifier:
         if not self.user_profile.get("acceptable_times"):
             return True
 
-        is_weekday = event_details["date_of_event"] and datetime.strptime(event_details["date_of_event"], "%d-%m-%Y").weekday() < 5
+        date_of_event = event_details.get("date_of_event")
+        if not date_of_event:
+            return True
+
+        # We've checked that date_of_event is not None above
+        is_weekday = datetime.strptime(date_of_event, "%d-%m-%Y").weekday() < 5  # type: ignore
 
         if is_weekday:
             weekday_start_time = self.user_profile["acceptable_times"]["weekdays"]["start"]
@@ -177,6 +192,10 @@ class EventDisqualifier:
                 start_time_user = datetime.strptime(weekday_start_time, "%H:%M")
                 # Add 30 minutes padding to start time
                 start_time_user = start_time_user - timedelta(minutes=30)
+                
+                # Normalize the datetimes
+                start_time, start_time_user = normalize_datetime(start_time, start_time_user)
+                
                 if start_time < start_time_user:
                     print("Event is before the user's acceptable times")
                     return False
@@ -187,6 +206,10 @@ class EventDisqualifier:
                 end_time_user = datetime.strptime(weekday_end_time, "%H:%M")
                 # Add 30 minutes padding to end time
                 end_time_user = end_time_user + timedelta(minutes=30)
+                
+                # Normalize the datetimes
+                end_time, end_time_user = normalize_datetime(end_time, end_time_user)
+                
                 if end_time > end_time_user:
                     print("Event is after the user's acceptable times")
                     return False
@@ -198,6 +221,10 @@ class EventDisqualifier:
                 start_time_user = datetime.strptime(weekend_start_time, "%H:%M")
                 # Add 30 minutes padding to start time
                 start_time_user = start_time_user - timedelta(minutes=30)
+                
+                # Normalize the datetimes
+                start_time, start_time_user = normalize_datetime(start_time, start_time_user)
+                
                 if start_time < start_time_user:
                     print("Event is before the user's acceptable times")
                     return False
@@ -208,6 +235,10 @@ class EventDisqualifier:
                 end_time_user = datetime.strptime(weekend_end_time, "%H:%M")
                 # Add 30 minutes padding to end time
                 end_time_user = end_time_user + timedelta(minutes=30)
+                
+                # Normalize the datetimes
+                end_time, end_time_user = normalize_datetime(end_time, end_time_user)
+                
                 if end_time > end_time_user:
                     print("Event is after the user's acceptable times")
                     return False
