@@ -1,3 +1,7 @@
+import json
+from typing import Optional, Dict, Any
+from playwright.async_api import Browser
+
 from app.services.event_processing.event_relevance_calculator import EventRelevanceCalculator
 from app.services.event_processing.disqualify_event import EventDisqualifier
 from app.services.event_processing.extract_event_details import extract_event_details
@@ -5,17 +9,15 @@ from app.services.scraping.scrap_web_page import scrap_page
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.core.redis_client import redis_client
 from app.utils.event_utils import get_seconds_until_event
-import json
-from typing import Optional, Dict, Any
 
-async def check_event(event_link: str, event_disqualifier: EventDisqualifier, event_relevance_calculator: EventRelevanceCalculator, model: ChatGoogleGenerativeAI) -> Optional[Dict[str, Any]]:
+async def check_event(event_link: str, event_disqualifier: EventDisqualifier, event_relevance_calculator: EventRelevanceCalculator, model: ChatGoogleGenerativeAI, browser: Browser) -> Optional[Dict[str, Any]]:
     print(f"Checking event: {event_link}")
 
     # Try to get cached result
     cache_key = f"event_details:{event_link}"
     cached_result = redis_client.get(cache_key)
     
-    webpage_content = await scrap_page(event_link)
+    webpage_content = await scrap_page(event_link, browser)
     
     if cached_result is not None:
         print("Retrieved event from cache:")
