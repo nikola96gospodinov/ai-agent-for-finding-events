@@ -4,20 +4,20 @@ from app.services.scraping.scrapers import get_event_links
 from app.services.event_processing.get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
 from app.utils.event_utils import remove_duplicates_based_on_title, remove_events_with_negative_relevance
 from app.services.event_processing.check_event import check_event
-from app.llm.llm import great_free_model
+from app.llm.llm import great_free_model, powerful_model
 from app.models.user_profile_model import UserProfile
 
 async def agent(user_profile: UserProfile):
-    search_keywords = get_search_keywords_for_event_sites(user_profile, great_free_model)
+    search_keywords = get_search_keywords_for_event_sites(user_profile, powerful_model)
     event_disqualifier = EventDisqualifier(user_profile)
-    event_relevance_calculator = EventRelevanceCalculator(great_free_model, user_profile)
+    event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile)
 
     event_links = await get_event_links(search_keywords)
 
     events = []
     for event_link in event_links:
         try:
-            event = await check_event(event_link, event_disqualifier, event_relevance_calculator, great_free_model)
+            event = await check_event(event_link, event_disqualifier, event_relevance_calculator, powerful_model)
             if event is not None:
                 events.append(event)
         except Exception as e:

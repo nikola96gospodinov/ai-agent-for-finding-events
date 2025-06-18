@@ -4,6 +4,7 @@ from app.services.event_processing.extract_event_details import extract_event_de
 from app.services.scraping.scrap_web_page import scrap_page
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.core.redis_client import redis_client
+from app.utils.event_utils import get_seconds_until_event
 import json
 from typing import Optional, Dict, Any
 
@@ -29,7 +30,7 @@ async def check_event(event_link: str, event_disqualifier: EventDisqualifier, ev
         else:
             redis_client.setex(
                 cache_key,
-                24 * 60 * 60,
+                get_seconds_until_event(event_details["date_of_event"], event_details["start_time"]),
                 json.dumps(event_details)
             )
 
