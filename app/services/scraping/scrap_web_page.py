@@ -13,7 +13,7 @@ async def scrap_page(url, browser: Browser | None = None, max_retries=3):
             page = await browser.new_page()
             await page.goto(url)
             await page.wait_for_load_state("domcontentloaded")
-            await page.wait_for_timeout(1500)
+            await page.wait_for_timeout(250)
             content = await page.inner_text("body")
             await page.close()
             if created_browser:
