@@ -1,5 +1,4 @@
 import json
-from typing import Optional, Dict, Any
 from playwright.async_api import Browser
 
 from app.services.event_processing.event_relevance_calculator import EventRelevanceCalculator
@@ -9,8 +8,9 @@ from app.services.scraping.scrap_web_page import scrap_page
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.core.redis_client import redis_client
 from app.utils.event_utils import get_seconds_until_event
+from app.models.events_model import EventResult
 
-async def check_event(event_link: str, event_disqualifier: EventDisqualifier, event_relevance_calculator: EventRelevanceCalculator, model: ChatGoogleGenerativeAI, browser: Browser) -> Optional[Dict[str, Any]]:
+async def check_event(event_link: str, event_disqualifier: EventDisqualifier, event_relevance_calculator: EventRelevanceCalculator, model: ChatGoogleGenerativeAI, browser: Browser) -> EventResult | None:
     print(f"Checking event: {event_link}")
 
     # Try to get cached result
@@ -41,11 +41,11 @@ async def check_event(event_link: str, event_disqualifier: EventDisqualifier, ev
     if is_compatible:
         event_relevance_score = event_relevance_calculator.calculate_event_relevance_score(webpage_content, event_details)
         print(f"Event relevance score: {event_relevance_score}")
-        result = {
-            "event_link": event_link,
-            "relevance": event_relevance_score,
-            "title": event_details["title"]
-        }
+        result = EventResult(
+            event_details=event_details,
+            event_url=event_link,
+            relevance=event_relevance_score
+        )
         
         return result
     else:

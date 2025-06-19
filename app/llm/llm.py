@@ -16,7 +16,7 @@ great_free_model = ChatGoogleGenerativeAI(
 )
 try:
     great_free_model.invoke("Hello")
-    print("Google Generative AI is working")
+    print("Gemma 3:27b is working")
 except Exception as e:
     print(f"Error connecting to Google Generative AI: {e}")
     # Fallback to local model if Google API fails
@@ -31,7 +31,7 @@ powerful_model = ChatGoogleGenerativeAI(
 )
 try:
     powerful_model.invoke("Hello")
-    print("Google Generative AI is working")
+    print("Gemini 2.0 Flash is working")
 except Exception as e:
     print(f"Error connecting to Google Generative AI: {e}")
     # Fallback to local model if Google API fails

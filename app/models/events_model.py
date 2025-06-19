@@ -23,3 +23,8 @@ class EventDetails(TypedDict):
     price_of_event: float | int
     event_format: Literal[event_format_options] | None
     is_sold_out: bool | None
+
+class EventResult(TypedDict):
+    event_details: EventDetails
+    event_url: str
+    relevance: float
