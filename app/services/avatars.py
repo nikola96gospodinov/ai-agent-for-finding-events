@@ -35,7 +35,8 @@ user_profile_main: UserProfile = {
     },
     "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "phone free", "architecture", "interior design"],
     "goals": ["make new friends", "find a business partner"],
-    "occupation": "software engineer"
+    "occupation": "software engineer",
+    "email": "nikola96gospodinov@gmail.com"
 }
 
 user_profile_creative: UserProfile = {
@@ -71,7 +72,8 @@ user_profile_creative: UserProfile = {
     },
     "interests": ["art", "photography", "design", "music", "concerts", "theater", "poetry", "writing", "coffee", "vegan", "sustainability", "travel", "yoga", "meditation", "breathwork", "art", "exhibitions", "museums"],
     "goals": ["find creative collaborators", "expand social circle", "discover new art venues", "find a romantic partner"],
-    "occupation": "graphic designer"
+    "occupation": "graphic designer",
+    "email": "nikola96gospodinov@gmail.com"
 }
 
 user_profile_sports: UserProfile = {
@@ -107,7 +109,8 @@ user_profile_sports: UserProfile = {
     },
     "interests": ["football", "basketball", "running", "gym", "fitness", "sports", "healthy eating", "team sports", "outdoor activities", "hiking", "cycling", "swimming", "yoga", "meditation", "breathwork"],
     "goals": ["join local teams", "improve fitness"],
-    "occupation": "personal trainer"
+    "occupation": "personal trainer",
+    "email": "nikola96gospodinov@gmail.com"
 }
 
 user_profile_family: UserProfile = {
@@ -143,7 +146,8 @@ user_profile_family: UserProfile = {
     },
     "interests": ["parenting", "cooking", "gardening", "reading", "board games", "family activities", "local community", "volunteering"],
     "goals": ["find family-friendly activities", "build local connections"],
-    "occupation": "teacher"
+    "occupation": "teacher",
+    "email": "nikola96gospodinov@gmail.com"
 }
 
 user_profile_student: UserProfile = {
@@ -179,7 +183,8 @@ user_profile_student: UserProfile = {
     },
     "interests": ["studying", "campus life", "student activities", "music", "gaming", "social media", "cafe culture", "budget travel", "clubbing", "nightlife", "dancing", "dating"],
     "goals": ["make study buddies", "find campus events", "network with peers", "dating"],
-    "occupation": "university student"
+    "occupation": "university student",
+    "email": "nikola96gospodinov@gmail.com"
 }
 
 user_profile_main_other: UserProfile = {
@@ -215,5 +220,6 @@ user_profile_main_other: UserProfile = {
     },
     "interests": ["reading", "sci-fi", "running", "travel", "coffee", "art", "music", "museums", "swimming", "phone free", "hiking", "nature", "outdoors", "psychology", "tattoos", "fashion", "movies", "cinematography", "talks"],
     "goals": ["find a new job"],
-    "occupation": "nurse"
+    "occupation": "nurse",
+    "email": "nikola96gospodinov@gmail.com"
 }

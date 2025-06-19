@@ -1,16 +1,17 @@
 import datetime
+from app.models.events_model import EventResult
 
-def remove_duplicates_based_on_title(events: list[dict]) -> list[dict]:
+def remove_duplicates_based_on_title(events: list[EventResult]) -> list[EventResult]:
     unique_events = []
     seen_titles = set()
     for event in events:
-        if event["title"] not in seen_titles:
+        if event["event_details"]["title"] not in seen_titles:
             unique_events.append(event)
-            seen_titles.add(event["title"])
+            seen_titles.add(event["event_details"]["title"])
 
     return unique_events
 
-def remove_events_with_negative_relevance(events: list[dict]) -> list[dict]:
+def remove_events_with_negative_relevance(events: list[EventResult]) -> list[EventResult]:
     return [event for event in events if event["relevance"] > 0]
 
 def get_seconds_until_event(date_of_event: str | None, start_time: str | None) -> int:

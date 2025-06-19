@@ -28,7 +28,7 @@ class UserProfile(TypedDict):
     interests: list[str]
     goals: list[str]
     occupation: str
-
+    email: str
     age: int
     gender: gender_bias_options
     sexual_orientation: sexual_orientation_bias_options

@@ -1,17 +1,13 @@
-import os
-from dotenv import load_dotenv, find_dotenv
 from langchain_ollama import ChatOllama
 from langchain_google_genai import ChatGoogleGenerativeAI
-
-if os.path.exists('.env'):
-    load_dotenv(find_dotenv(), override=True)
+from app.core.env_vars import get_env_var
 
 local_model = ChatOllama(model="gemma3:12b", temperature=0.0)
 
 # Great free model - free to use for 14,4k requests per day
 great_free_model = ChatGoogleGenerativeAI(
     model='gemma-3-27b-it',
-    api_key=os.environ["GEMINI_API_KEY"], # type: ignore
+    api_key=get_env_var("GEMINI_API_KEY"), # type: ignore
     temperature=0.0 
 )
 try:
@@ -26,7 +22,7 @@ except Exception as e:
 # Powerful model - free to use for 1.5k requests per day
 powerful_model = ChatGoogleGenerativeAI(
     model='gemini-2.0-flash',
-    api_key=os.environ["GEMINI_API_KEY"], # type: ignore
+    api_key=get_env_var("GEMINI_API_KEY"), # type: ignore
     temperature=0.0
 )
 try:

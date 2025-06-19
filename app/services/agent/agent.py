@@ -36,4 +36,4 @@ async def agent(user_profile: UserProfile):
     events = remove_events_with_negative_relevance(events)
     
     for event in events:
-        print(f"Event: {event['title']} - Link: {event['event_link']} - Relevance: {event['relevance']}\n")
+        print(f"Event: {event['event_details']['title']} - Link: {event['event_url']} - Relevance: {event['relevance']}\n")
