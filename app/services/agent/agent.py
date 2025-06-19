@@ -8,6 +8,8 @@ from app.utils.event_utils import remove_duplicates_based_on_title, remove_event
 from app.services.event_processing.check_event import check_event
 from app.llm.llm import great_free_model, powerful_model
 from app.models.user_profile_model import UserProfile
+from app.utils.email_utils import format_events_for_email
+from app.services.email.send_email import post_message
 
 async def agent(user_profile: UserProfile):
     search_keywords = get_search_keywords_for_event_sites(user_profile, powerful_model)
@@ -37,3 +39,6 @@ async def agent(user_profile: UserProfile):
     
     for event in events:
         print(f"Event: {event['event_details']['title']} - Link: {event['event_url']} - Relevance: {event['relevance']}\n")
+
+    html = format_events_for_email(events)
+    post_message(user_profile["email"], "test@test.com", "Event AI Agent", html)
