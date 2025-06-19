@@ -41,4 +41,4 @@ async def agent(user_profile: UserProfile):
         print(f"Event: {event['event_details']['title']} - Link: {event['event_url']} - Relevance: {event['relevance']}\n")
 
     html = format_events_for_email(events)
-    post_message(user_profile["email"], "test@test.com", "Event AI Agent", html)
+    post_message(user_profile["email"], "test@test.com", "Events specifically picked for you! 🤩", html)
