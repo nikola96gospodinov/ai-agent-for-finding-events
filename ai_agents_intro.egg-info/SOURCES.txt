@@ -1,7 +1,0 @@
-README.md
-setup.py
-ai_agents_intro.egg-info/PKG-INFO
-ai_agents_intro.egg-info/SOURCES.txt
-ai_agents_intro.egg-info/dependency_links.txt
-ai_agents_intro.egg-info/requires.txt
-ai_agents_intro.egg-info/top_level.txt
