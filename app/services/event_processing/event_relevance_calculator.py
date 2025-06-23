@@ -8,6 +8,7 @@ import ast
 from app.models.user_profile_model import UserProfile, Location
 from app.models.events_model import EventDetails
 from app.utils.address_utils import calculate_distance
+from app.utils.age_utils import get_age_from_birth_date
 from app.utils.request_utils import retry_with_backoff
 
 class Interests(TypedDict):
@@ -217,10 +218,11 @@ class EventRelevanceCalculator:
     
     def _calculate_demographic_score(self, event_details: EventDetails) -> float:
         score = 0
+        user_age = get_age_from_birth_date(self.user_profile["birth_date"])
 
-        if event_details["age_range"] and self.user_profile["age"]:
+        if event_details["age_range"] and user_age:
             # +18 exception
-            if self.user_profile["age"] >= 18 and event_details["age_range"]["min_age"] == 18 and not event_details["age_range"]["max_age"]:
+            if user_age >= 18 and event_details["age_range"]["min_age"] == 18 and not event_details["age_range"]["max_age"]:
                 score += 1
             else:
                 score += 4

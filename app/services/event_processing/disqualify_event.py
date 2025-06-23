@@ -4,6 +4,7 @@ from app.models.user_profile_model import UserProfile
 from app.models.events_model import EventDetails
 from app.models.user_profile_model import Location
 from app.utils.address_utils import calculate_distance
+from app.utils.age_utils import get_age_from_birth_date
 
 def normalize_datetime(dt1: datetime, dt2: datetime) -> tuple[datetime, datetime]:
     """Take timezone from the aware datetime and apply it to the naive one."""
@@ -121,14 +122,15 @@ class EventDisqualifier:
     
     def _is_event_within_acceptable_age_range(self, event_details: EventDetails) -> bool:
         AGE_MARGIN = 2  # 2-year margin of tolerance
+        user_age = get_age_from_birth_date(self.user_profile["birth_date"])
         
         if event_details["age_range"]:
             if event_details["age_range"]["min_age"]:
-                if event_details["age_range"]["min_age"] > self.user_profile["age"] + AGE_MARGIN:
+                if event_details["age_range"]["min_age"] > user_age + AGE_MARGIN:
                     print("Event is outside the user's acceptable age range")
                     return False
             if event_details["age_range"]["max_age"]:
-                if event_details["age_range"]["max_age"] < self.user_profile["age"] - AGE_MARGIN:
+                if event_details["age_range"]["max_age"] < user_age - AGE_MARGIN:
                     print("Event is outside the user's acceptable age range")
                     return False
 

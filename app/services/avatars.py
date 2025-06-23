@@ -3,7 +3,7 @@ from datetime import datetime
 from app.models.user_profile_model import UserProfile
 
 user_profile_main: UserProfile = {
-    "age": 29,
+    "birth_date": datetime(1996, 6, 14),
     "gender": "male",
     "sexual_orientation": "straight",
     "relationship_status": "in a relationship",
@@ -40,7 +40,7 @@ user_profile_main: UserProfile = {
 }
 
 user_profile_creative: UserProfile = {
-    "age": 34,
+    "birth_date": datetime(1991, 4, 1),
     "gender": "female",
     "sexual_orientation": "bisexual",
     "relationship_status": "single",
@@ -77,7 +77,7 @@ user_profile_creative: UserProfile = {
 }
 
 user_profile_sports: UserProfile = {
-    "age": 25,
+    "birth_date": datetime(1998, 10, 15),
     "gender": "male",
     "sexual_orientation": "straight",
     "relationship_status": "single",
@@ -114,7 +114,7 @@ user_profile_sports: UserProfile = {
 }
 
 user_profile_family: UserProfile = {
-    "age": 42,
+    "birth_date": datetime(1983, 7, 10),
     "gender": "female",
     "sexual_orientation": "straight",
     "relationship_status": "married",
@@ -151,7 +151,7 @@ user_profile_family: UserProfile = {
 }
 
 user_profile_student: UserProfile = {
-    "age": 21,
+    "birth_date": datetime(2005, 1, 14),
     "gender": "non-binary",
     "sexual_orientation": "other",
     "relationship_status": "single",
@@ -188,7 +188,7 @@ user_profile_student: UserProfile = {
 }
 
 user_profile_main_other: UserProfile = {
-    "age": 37,
+    "birth_date": datetime(1987, 7, 14),
     "gender": "female",
     "sexual_orientation": "straight",
     "relationship_status": "in a relationship",

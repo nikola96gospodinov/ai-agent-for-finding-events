@@ -3,7 +3,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
 from app.models.user_profile_model import UserProfile
-from app.utils.age_utils import get_age_bracket
+from app.utils.age_utils import get_age_bracket, get_age_from_birth_date
 
 def remove_prohibited_queries(queries: List[str]) -> List[str]:
     prohibited_queries = ["professional connections", "find collaborators", "business collaboration", "networking", "professional networking", "find a job", "job fairs", "job training", "career fair", "career fairs", "job fair", "job opportunities", "job search", "job openings", "improve skills", "career"]
@@ -81,7 +81,7 @@ def get_search_keywords_for_event_sites(user_profile: UserProfile, model: BaseCh
     response = chain.invoke({
         "interests": user_profile["interests"],
         "goals": user_profile["goals"],
-        "age_bracket": get_age_bracket(user_profile["age"]),
+        "age_bracket": get_age_bracket(get_age_from_birth_date(user_profile["birth_date"])),
         "occupation": user_profile["occupation"],
         "gender": user_profile["gender"],
         "is_lgbtq": user_profile["sexual_orientation"] != "straight",

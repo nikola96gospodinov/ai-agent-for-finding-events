@@ -29,7 +29,7 @@ class UserProfile(TypedDict):
     goals: list[str]
     occupation: str
     email: str
-    age: int
+    birth_date: datetime
     gender: gender_bias_options
     sexual_orientation: sexual_orientation_bias_options
     relationship_status: relationship_status_bias_options
