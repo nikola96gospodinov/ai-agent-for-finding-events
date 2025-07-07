@@ -11,8 +11,11 @@ def remove_duplicates_based_on_title(events: list[EventResult]) -> list[EventRes
 
     return unique_events
 
-def remove_events_with_negative_relevance(events: list[EventResult]) -> list[EventResult]:
-    return [event for event in events if event["relevance"] > 0]
+def filter_events_by_relevance(events: list[EventResult], only_highly_relevant: bool = False) -> list[EventResult]:
+    if only_highly_relevant:
+        return [event for event in events if event["relevance"] > 40]
+    else:
+        return [event for event in events if event["relevance"] > 0]
 
 def get_seconds_until_event(date_of_event: str | None, start_time: str | None) -> int:
     """

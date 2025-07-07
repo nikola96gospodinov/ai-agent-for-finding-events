@@ -4,14 +4,14 @@ from app.services.event_processing.event_relevance_calculator import EventReleva
 from app.services.event_processing.disqualify_event import EventDisqualifier
 from app.services.scraping.scrapers import get_event_links
 from app.services.event_processing.get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
-from app.utils.event_utils import remove_duplicates_based_on_title, remove_events_with_negative_relevance
+from app.utils.event_utils import remove_duplicates_based_on_title, filter_events_by_relevance
 from app.services.event_processing.check_event import check_event
 from app.llm.llm import great_free_model, powerful_model
 from app.models.user_profile_model import UserProfile
 from app.utils.email_utils import format_events_for_email
 from app.services.email.send_email import post_message
 
-async def agent(user_profile: UserProfile):
+async def agent(user_profile: UserProfile, only_highly_relevant: bool = False):
     search_keywords = get_search_keywords_for_event_sites(user_profile, powerful_model)
     event_disqualifier = EventDisqualifier(user_profile)
     event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile)
@@ -35,8 +35,8 @@ async def agent(user_profile: UserProfile):
 
     events = sorted(events, key=lambda x: x["relevance"], reverse=True)
     events = remove_duplicates_based_on_title(events)
-    events = remove_events_with_negative_relevance(events)
-    
+    events = filter_events_by_relevance(events, only_highly_relevant)
+
     for event in events:
         print(f"Event: {event['event_details']['title']} - Link: {event['event_url']} - Relevance: {event['relevance']}\n")
 
