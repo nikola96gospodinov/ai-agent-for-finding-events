@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import create_client, Client
 from app.core.config import settings
 from app.models.user_profile_model import UserProfile
-from datetime import datetime
+from datetime import datetime, date
 from app.utils.address_utils import get_address_coordinates
 from app.utils.date_utils import time_to_string
 
@@ -14,6 +14,7 @@ class SupabaseAuthService:
     def __init__(self):
         self.supabase_url = settings.SUPABASE_URL
         self.supabase_key = settings.SUPABASE_SERVICE_ROLE_KEY
+        self.MAX_RUNS_PER_MONTH = 2
 
         self.client: Optional[Client] = None
         
@@ -128,6 +129,76 @@ class SupabaseAuthService:
         except Exception as e:
             print(f"Error converting profile data: {e}")
             return None
+
+    async def check_user_run_limit(self, user_id: str) -> bool:
+        """Check if user has exceeded their monthly run limit (max 2 runs per calendar month)"""
+        if not self.client:
+            print("Supabase client not initialized")
+            return False
+            
+        try:
+            # Get current date
+            current_date = date.today()
+            current_month = current_date.month
+            current_year = current_date.year
+            
+            # Query runs table for the current month
+            response = self.client.table('runs').select('*').eq('user_id', user_id).execute()
+            
+            if response.data:
+                # Count runs in the current month
+                current_month_runs = 0
+                for run in response.data:
+                    run_date_str = run.get('run_date')
+                    if run_date_str:
+                        try:
+                            # Parse the run_date (assuming it's in ISO format)
+                            run_date = datetime.fromisoformat(run_date_str.replace('Z', '+00:00')).date()
+                            if run_date.month == current_month and run_date.year == current_year:
+                                current_month_runs += 1
+                        except (ValueError, TypeError) as e:
+                            print(f"Error parsing run_date: {e}")
+                            continue
+                
+                # Check if user has exceeded the limit
+                if current_month_runs >= self.MAX_RUNS_PER_MONTH:
+                    print(f"User {user_id} has already run {current_month_runs} times this month (limit: {self.MAX_RUNS_PER_MONTH})")
+                    return False
+                else:
+                    print(f"User {user_id} has {current_month_runs} runs this month, can run {self.MAX_RUNS_PER_MONTH - current_month_runs} more times")
+                    return True
+            else:
+                # No runs found, user can run
+                print(f"User {user_id} has no previous runs, can run up to {self.MAX_RUNS_PER_MONTH} times this month")
+                return True
+                
+        except Exception as e:
+            print(f"Error checking user run limit: {e}")
+            return False
+    
+    async def record_user_run(self, user_id: str) -> bool:
+        """Record a new run for the user"""
+        if not self.client:
+            print("Supabase client not initialized")
+            return False
+            
+        try:
+            # Insert a new run record
+            response = self.client.table('runs').insert({
+                'user_id': user_id,
+                'run_date': datetime.now().isoformat()
+            }).execute()
+            
+            if response.data:
+                print(f"Successfully recorded run for user {user_id}")
+                return True
+            else:
+                print(f"Failed to record run for user {user_id}")
+                return False
+                
+        except Exception as e:
+            print(f"Error recording user run: {e}")
+            return False
 
 # Global instance
 auth_service = SupabaseAuthService()
