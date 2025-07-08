@@ -13,7 +13,7 @@ security = HTTPBearer()
 class SupabaseAuthService:
     def __init__(self):
         self.supabase_url = settings.SUPABASE_URL
-        self.supabase_key = settings.SUPABASE_ANON_KEY
+        self.supabase_key = settings.SUPABASE_SERVICE_ROLE_KEY
 
         self.client: Optional[Client] = None
         
