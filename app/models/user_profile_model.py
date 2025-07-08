@@ -2,10 +2,6 @@ from datetime import datetime
 from typing import Literal, TypedDict
 from app.models.bias_options import gender_bias_options, sexual_orientation_bias_options, relationship_status_bias_options
 
-class Timeframe(TypedDict):
-    start_date: datetime
-    end_date: datetime
-
 DistanceUnit = Literal["km", "miles"]
 
 class DistanceThreshold(TypedDict):
@@ -39,5 +35,4 @@ class UserProfile(TypedDict):
     acceptable_times: AcceptableTimes
     location: Location 
     distance_threshold: DistanceThreshold 
-    time_commitment_in_minutes: int 
-    timeframe: Timeframe
+    time_commitment_in_minutes: int

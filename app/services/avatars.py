@@ -29,10 +29,6 @@ user_profile_main: UserProfile = {
         "unit": "miles"
     },
     "time_commitment_in_minutes": 240, # 4 hours
-    "timeframe": {
-        "start_date": datetime(2025, 4, 1),
-        "end_date": datetime(2025, 12, 31)
-    },
     "interests": ["technology", "coding", "JavaScript", "Python", "AI", "startups", "business", "entrepreneurship", "Formula 1", "motorsports", "go karting", "football", "health", "fitness", "biohacking", "hiking", "nature", "outdoors", "latin dancing", "alcohol free", "phone free", "architecture", "interior design"],
     "goals": ["make new friends", "find a business partner"],
     "occupation": "software engineer",
@@ -66,10 +62,6 @@ user_profile_creative: UserProfile = {
         "unit": "miles"
     },
     "time_commitment_in_minutes": 360,
-    "timeframe": {
-        "start_date": datetime(2025, 5, 1),
-        "end_date": datetime(2025, 12, 31)
-    },
     "interests": ["art", "photography", "design", "music", "concerts", "theater", "poetry", "writing", "coffee", "vegan", "sustainability", "travel", "yoga", "meditation", "breathwork", "art", "exhibitions", "museums"],
     "goals": ["find creative collaborators", "expand social circle", "discover new art venues", "find a romantic partner"],
     "occupation": "graphic designer",
@@ -103,10 +95,6 @@ user_profile_sports: UserProfile = {
         "unit": "miles"
     },
     "time_commitment_in_minutes": 180,
-    "timeframe": {
-        "start_date": datetime(2025, 5, 1),
-        "end_date": datetime(2025, 12, 31)
-    },
     "interests": ["football", "basketball", "running", "gym", "fitness", "sports", "healthy eating", "team sports", "outdoor activities", "hiking", "cycling", "swimming", "yoga", "meditation", "breathwork"],
     "goals": ["join local teams", "improve fitness"],
     "occupation": "personal trainer",
@@ -140,10 +128,6 @@ user_profile_family: UserProfile = {
         "unit": "miles"
     },
     "time_commitment_in_minutes": 120,
-    "timeframe": {
-        "start_date": datetime(2025, 5, 1),
-        "end_date": datetime(2025, 12, 31)
-    },
     "interests": ["parenting", "cooking", "gardening", "reading", "board games", "family activities", "local community", "volunteering"],
     "goals": ["find family-friendly activities", "build local connections"],
     "occupation": "teacher",
@@ -177,10 +161,6 @@ user_profile_student: UserProfile = {
         "unit": "miles"
     },
     "time_commitment_in_minutes": 240,
-    "timeframe": {
-        "start_date": datetime(2025, 5, 1),
-        "end_date": datetime(2025, 12, 31)
-    },
     "interests": ["studying", "campus life", "student activities", "music", "gaming", "social media", "cafe culture", "budget travel", "clubbing", "nightlife", "dancing", "dating"],
     "goals": ["make study buddies", "find campus events", "network with peers", "dating"],
     "occupation": "university student",
@@ -214,10 +194,6 @@ user_profile_main_other: UserProfile = {
         "unit": "miles"
     },
     "time_commitment_in_minutes": 240,
-    "timeframe": {
-        "start_date": datetime(2025, 5, 1),
-        "end_date": datetime(2025, 12, 31)
-    },
     "interests": ["reading", "sci-fi", "running", "travel", "coffee", "art", "music", "museums", "swimming", "phone free", "hiking", "nature", "outdoors", "psychology", "tattoos", "fashion", "movies", "cinematography", "talks"],
     "goals": ["find a new job"],
     "occupation": "nurse",

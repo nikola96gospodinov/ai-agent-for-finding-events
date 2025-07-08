@@ -1,11 +1,10 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.services.agent.tasks import run_agent_task
 from app.models.user_profile_model import UserProfile
 from celery.result import AsyncResult
-from app.services.avatars import user_profile_main
-from typing import Optional
+from app.services.auth import get_current_user_profile
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -19,7 +18,7 @@ app.add_middleware(
     allow_origins=["*"],  # TODO: Change to specific origins in production
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
 @app.get("/")
@@ -29,8 +28,9 @@ async def root():
 @app.post("/run-agent")
 async def run_agent_endpoint(
     only_highly_relevant: bool = Query(False, description="Event only highly relevant to the user or not"),
+    user_profile: UserProfile = Depends(get_current_user_profile),
 ):
-    task = run_agent_task.delay(dict(user_profile_main), only_highly_relevant)
+    task = run_agent_task.delay(dict(user_profile), only_highly_relevant)
     return {"task_id": task.id, "status": "Task submitted"}
 
 @app.get("/task-status/{task_id}")

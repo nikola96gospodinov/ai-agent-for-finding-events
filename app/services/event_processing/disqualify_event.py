@@ -23,7 +23,6 @@ class EventDisqualifier:
         checks = [
             self._is_event_sold_out,
             self._is_event_within_acceptable_distance,
-            self._is_event_within_acceptable_timeframe,
             self._is_event_within_acceptable_price_range,
             self._is_event_within_time_commitment,
             self._is_event_within_acceptable_age_range,
@@ -78,24 +77,6 @@ class EventDisqualifier:
             return False
             
         return within_threshold
-
-    def _is_event_within_acceptable_timeframe(self, event_details: EventDetails) -> bool:
-        if not event_details.get("date_of_event"):
-            return True
-
-        event_date = datetime.strptime(event_details["date_of_event"], "%d-%m-%Y")  # type: ignore
-        start_date = self.user_profile["timeframe"]["start_date"]
-        end_date = self.user_profile["timeframe"]["end_date"]
-
-        # Normalize the datetimes
-        event_date, start_date = normalize_datetime(event_date, start_date)
-        event_date, end_date = normalize_datetime(event_date, end_date)
-
-        if event_date < start_date or event_date > end_date:
-            print("Event is outside the user's acceptable timeframe")
-            return False
-
-        return True
 
     def _is_event_within_acceptable_price_range(self, event_details: EventDetails) -> bool:
         if event_details["price_of_event"] and not self.user_profile["willingness_to_pay"]:
