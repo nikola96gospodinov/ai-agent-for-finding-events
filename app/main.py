@@ -4,7 +4,8 @@ from app.core.config import settings
 from app.services.agent.tasks import run_agent_task
 from app.models.user_profile_model import UserProfile
 from celery.result import AsyncResult
-from app.services.auth import get_current_user_profile, get_current_user, auth_service
+from app.services.auth import get_current_user_profile, get_current_user
+from app.services.runs.user_run_service import user_run_service
 from typing import Dict, Any
 
 app = FastAPI(
@@ -32,20 +33,19 @@ async def run_agent_endpoint(
     user: Dict[str, Any] = Depends(get_current_user),
     user_profile: UserProfile = Depends(get_current_user_profile),
 ):
-    # Check if user has exceeded their monthly run limit
     user_id = user.get('id')
     if not user_id:
         raise HTTPException(status_code=400, detail="User ID not found in token")
     
-    can_run = await auth_service.check_user_run_limit(user_id)
+    can_run = await user_run_service.check_user_run_limit(user_id)
     if not can_run:
         raise HTTPException(
             status_code=429, 
             detail="Monthly run limit exceeded. You can only run the agent 2 times per calendar month."
         )
     
-    # Record the run before starting the task
-    run_recorded = await auth_service.record_user_run(user_id)
+    # TODO: The run should be recorded after it's been successful but for now we'll record it before the agent runs
+    run_recorded = await user_run_service.record_user_run(user_id)
     if not run_recorded:
         raise HTTPException(
             status_code=500, 

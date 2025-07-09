@@ -1,12 +1,11 @@
-from typing import Optional, Dict, Any, cast
+from typing import Optional, Dict, Any
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import create_client, Client
 from app.core.config import settings
 from app.models.user_profile_model import UserProfile
-from datetime import datetime, date
-from app.utils.address_utils import get_address_coordinates
-from app.utils.date_utils import time_to_string
+from app.utils.user_profile_utils import convert_to_user_profile
+from app.services.runs.user_run_service import user_run_service
 
 security = HTTPBearer()
 
@@ -14,13 +13,14 @@ class SupabaseAuthService:
     def __init__(self):
         self.supabase_url = settings.SUPABASE_URL
         self.supabase_key = settings.SUPABASE_SERVICE_ROLE_KEY
-        self.MAX_RUNS_PER_MONTH = 2
 
         self.client: Optional[Client] = None
         
         if self.supabase_url and self.supabase_key:
             try:
                 self.client = create_client(self.supabase_url, self.supabase_key)
+                # Initialize the run service with the client
+                user_run_service.set_client(self.client)
                 print("Supabase client initialized successfully")
             except Exception as e:
                 print(f"Failed to initialize Supabase client: {e}")
@@ -44,8 +44,8 @@ class SupabaseAuthService:
             print(f"Error getting user from token: {e}")
             return None
     
-    async def get_user_profile(self, user_id: str, user_data: Optional[Dict[str, Any]] = None) -> Optional[UserProfile]:
-        """Get user profile from Supabase database"""
+    async def get_raw_profile_data(self, user_id: str) -> Optional[Dict[str, Any]]:
+        """Get raw profile data from Supabase database"""
         if not self.client:
             print("Supabase client not initialized")
             return None
@@ -54,8 +54,7 @@ class SupabaseAuthService:
             response = self.client.table('profiles').select('*').eq('user_id', user_id).execute()
 
             if response.data and len(response.data) > 0:
-                profile_data = response.data[0]
-                return self._convert_to_user_profile(profile_data, user_data)
+                return response.data[0]
             else:
                 print(f"No profile found for user_id: {user_id}")
                 return None
@@ -63,144 +62,7 @@ class SupabaseAuthService:
         except Exception as e:
             print(f"Error getting user profile: {e}")
             return None
-    
-    def _convert_to_user_profile(self, profile_data: Dict[str, Any], user_data: Optional[Dict[str, Any]] = None) -> UserProfile | None:
-        """Convert database profile data to UserProfile model"""
-        try:
-            birthday = profile_data.get('birthday')
-            if isinstance(birthday, str):
-                birth_date = datetime.fromisoformat(birthday)
-            elif birthday and hasattr(birthday, 'date'):  # If it's a date object
-                birth_date = datetime.combine(birthday, datetime.min.time())
-            else:
-                birth_date = datetime(1995, 1, 1)  # Default fallback
-            
-            weekday_start = profile_data.get('weekday_start_time')
-            weekday_end = profile_data.get('weekday_end_time')
-            weekend_start = profile_data.get('weekend_start_time')
-            weekend_end = profile_data.get('weekend_end_time')
-            
-            
-            acceptable_times = {
-                "weekdays": {
-                    "start": time_to_string(weekday_start) or "17:00",
-                    "end": time_to_string(weekday_end) or "22:00"
-                },
-                "weekends": {
-                    "start": time_to_string(weekend_start) or "8:00",
-                    "end": time_to_string(weekend_end) or "23:00"
-                }
-            }
-            
-            distance_threshold = {
-                "distance_threshold": profile_data.get('distance_threshold_value', 20),
-                "unit": profile_data.get('distance_threshold_unit', 'miles')
-            }
-            
-            location = get_address_coordinates(profile_data.get('postcode'))
-            
-            budget_value = profile_data.get('budget', 0)
-            willingness_to_pay = budget_value > 0
-            
-            time_commitment_in_minutes = profile_data.get('time_commitment_in_minutes', 240)
-            
-            # Get email from user data (auth) or profile data, with fallback to empty string
-            email = ""
-            if user_data and user_data.get('email'):
-                email = user_data.get('email')
-            
-            return cast(UserProfile, {
-                "birth_date": birth_date,
-                "gender": profile_data.get('gender', 'male'),
-                "sexual_orientation": profile_data.get('sexual_orientation', 'straight'),
-                "relationship_status": profile_data.get('relationship_status', 'single'),
-                "willingness_to_pay": willingness_to_pay,
-                "budget": budget_value,
-                "willingness_for_online": profile_data.get('willingness_for_online', False),
-                "acceptable_times": acceptable_times,
-                "location": location,
-                "distance_threshold": distance_threshold,
-                "time_commitment_in_minutes": time_commitment_in_minutes,
-                "interests": profile_data.get('interests', []),
-                "goals": profile_data.get('goals', []),
-                "occupation": profile_data.get('occupation', ''),
-                "email": email
-            })
-        except Exception as e:
-            print(f"Error converting profile data: {e}")
-            return None
 
-    async def check_user_run_limit(self, user_id: str) -> bool:
-        """Check if user has exceeded their monthly run limit (max 2 runs per calendar month)"""
-        if not self.client:
-            print("Supabase client not initialized")
-            return False
-            
-        try:
-            # Get current date
-            current_date = date.today()
-            current_month = current_date.month
-            current_year = current_date.year
-            
-            # Query runs table for the current month
-            response = self.client.table('runs').select('*').eq('user_id', user_id).execute()
-            
-            if response.data:
-                # Count runs in the current month
-                current_month_runs = 0
-                for run in response.data:
-                    run_date_str = run.get('run_date')
-                    if run_date_str:
-                        try:
-                            # Parse the run_date (assuming it's in ISO format)
-                            run_date = datetime.fromisoformat(run_date_str.replace('Z', '+00:00')).date()
-                            if run_date.month == current_month and run_date.year == current_year:
-                                current_month_runs += 1
-                        except (ValueError, TypeError) as e:
-                            print(f"Error parsing run_date: {e}")
-                            continue
-                
-                # Check if user has exceeded the limit
-                if current_month_runs >= self.MAX_RUNS_PER_MONTH:
-                    print(f"User {user_id} has already run {current_month_runs} times this month (limit: {self.MAX_RUNS_PER_MONTH})")
-                    return False
-                else:
-                    print(f"User {user_id} has {current_month_runs} runs this month, can run {self.MAX_RUNS_PER_MONTH - current_month_runs} more times")
-                    return True
-            else:
-                # No runs found, user can run
-                print(f"User {user_id} has no previous runs, can run up to {self.MAX_RUNS_PER_MONTH} times this month")
-                return True
-                
-        except Exception as e:
-            print(f"Error checking user run limit: {e}")
-            return False
-    
-    async def record_user_run(self, user_id: str) -> bool:
-        """Record a new run for the user"""
-        if not self.client:
-            print("Supabase client not initialized")
-            return False
-            
-        try:
-            # Insert a new run record
-            response = self.client.table('runs').insert({
-                'user_id': user_id,
-                'run_date': datetime.now().isoformat()
-            }).execute()
-            
-            if response.data:
-                print(f"Successfully recorded run for user {user_id}")
-                return True
-            else:
-                print(f"Failed to record run for user {user_id}")
-                return False
-                
-        except Exception as e:
-            print(f"Error recording user run: {e}")
-            return False
-
-# Global instance
 auth_service = SupabaseAuthService()
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Optional[Dict[str, Any]]:
@@ -223,8 +85,8 @@ async def get_current_user_profile(user: Dict[str, Any] = Depends(get_current_us
     if not user_id:
         raise HTTPException(status_code=400, detail="User ID not found in token")
     
-    profile = await auth_service.get_user_profile(user_id, user)
-    if not profile:
+    profile_data = await auth_service.get_raw_profile_data(user_id)
+    if not profile_data:
         return None
     
-    return profile 
+    return convert_to_user_profile(profile_data, user) 
