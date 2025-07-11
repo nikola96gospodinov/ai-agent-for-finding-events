@@ -1,8 +1,8 @@
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from supabase import create_client, Client
-from app.core.config import settings
+from supabase import Client
+from app.core.supabase_client import supabase_base
 from app.models.user_profile_model import UserProfile
 from app.utils.user_profile_utils import convert_to_user_profile
 from app.services.runs.user_run_service import user_run_service
@@ -11,22 +11,13 @@ security = HTTPBearer()
 
 class SupabaseAuthService:
     def __init__(self):
-        self.supabase_url = settings.SUPABASE_URL
-        self.supabase_key = settings.SUPABASE_SERVICE_ROLE_KEY
-
-        self.client: Optional[Client] = None
-        
-        if self.supabase_url and self.supabase_key:
-            try:
-                self.client = create_client(self.supabase_url, self.supabase_key)
-                # Initialize the run service with the client
-                user_run_service.set_client(self.client)
-                print("Supabase client initialized successfully")
-            except Exception as e:
-                print(f"Failed to initialize Supabase client: {e}")
-                self.client = None
-        else:
-            print("Supabase credentials not found in environment variables")
+        # The base client is already initialized in supabase_base
+        pass
+    
+    @property
+    def client(self) -> Optional[Client]:
+        """Get the Supabase client from the base class"""
+        return supabase_base.client
     
     async def get_user_from_token(self, token: str) -> Optional[Dict[str, Any]]:
         """Get user information from Supabase token"""

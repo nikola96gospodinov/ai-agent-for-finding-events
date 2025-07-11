@@ -6,7 +6,7 @@ from app.services.scraping.scrapers import get_event_links
 from app.services.event_processing.get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
 from app.utils.event_utils import remove_duplicates_based_on_title, filter_events_by_relevance
 from app.services.event_processing.check_event import check_event
-from app.llm.llm import great_free_model, powerful_model
+from app.core.llm import great_free_model, powerful_model
 from app.models.user_profile_model import UserProfile
 from app.utils.email_utils import format_events_for_email
 from app.services.email.send_email import post_message
