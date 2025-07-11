@@ -12,9 +12,9 @@ from app.utils.email_utils import format_events_for_email
 from app.services.email.send_email import post_message
 
 async def agent(user_profile: UserProfile, only_highly_relevant: bool = False):
-    search_keywords = get_search_keywords_for_event_sites(user_profile, local_model)
+    search_keywords = get_search_keywords_for_event_sites(user_profile, powerful_model)
     event_disqualifier = EventDisqualifier(user_profile)
-    event_relevance_calculator = EventRelevanceCalculator(local_model, user_profile)
+    event_relevance_calculator = EventRelevanceCalculator(great_free_model, user_profile)
 
     event_links = await get_event_links(search_keywords)
 
@@ -24,7 +24,7 @@ async def agent(user_profile: UserProfile, only_highly_relevant: bool = False):
     events = []
     for event_link in event_links:
         try:
-            event = await check_event(event_link, event_disqualifier, event_relevance_calculator, local_model, browser)
+            event = await check_event(event_link, event_disqualifier, event_relevance_calculator, great_free_model, browser)
             if event is not None:
                 events.append(event)
         except Exception as e:
@@ -40,5 +40,5 @@ async def agent(user_profile: UserProfile, only_highly_relevant: bool = False):
     for event in events:
         print(f"Event: {event['event_details']['title']} - Link: {event['event_url']} - Relevance: {event['relevance']}\n")
 
-    html = format_events_for_email(events)
+    html = format_events_for_email(events, user_profile)
     post_message(user_profile["email"], "test@test.com", "Events specifically picked for you! 🤩", html)
