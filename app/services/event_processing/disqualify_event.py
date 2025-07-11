@@ -5,6 +5,7 @@ from app.models.events_model import EventDetails
 from app.models.user_profile_model import Location
 from app.utils.address_utils import calculate_distance
 from app.utils.age_utils import get_age_from_birth_date
+from app.utils.date_utils import normalize_time_string
 
 def normalize_datetime(dt1: datetime, dt2: datetime) -> tuple[datetime, datetime]:
     """Take timezone from the aware datetime and apply it to the naive one."""
@@ -92,8 +93,12 @@ class EventDisqualifier:
     
     def _is_event_within_time_commitment(self, event_details: EventDetails) -> bool:
         if event_details["start_time"] and event_details["end_time"] and self.user_profile["time_commitment_in_minutes"]:
-            start_time = datetime.strptime(event_details["start_time"], "%H:%M")
-            end_time = datetime.strptime(event_details["end_time"], "%H:%M")
+            start_time_str = normalize_time_string(event_details["start_time"])
+            end_time_str = normalize_time_string(event_details["end_time"])
+            
+            start_time = datetime.strptime(start_time_str, "%H:%M")
+            end_time = datetime.strptime(end_time_str, "%H:%M")
+
             time_difference = end_time - start_time
             if time_difference.total_seconds() > self.user_profile["time_commitment_in_minutes"] * 60:
                 print("Event is longer than the user's acceptable time commitment")
@@ -165,12 +170,13 @@ class EventDisqualifier:
         if is_weekday:
             weekday_start_time = self.user_profile["acceptable_times"]["weekdays"]["start"]
             if event_details["start_time"] and weekday_start_time:
-                start_time = datetime.strptime(event_details["start_time"], "%H:%M")
+                start_time_str = normalize_time_string(event_details["start_time"])
+                
+                start_time = datetime.strptime(start_time_str, "%H:%M")
                 start_time_user = datetime.strptime(weekday_start_time, "%H:%M")
                 # Add 30 minutes padding to start time
                 start_time_user = start_time_user - timedelta(minutes=30)
                 
-                # Normalize the datetimes
                 start_time, start_time_user = normalize_datetime(start_time, start_time_user)
                 
                 if start_time < start_time_user:
@@ -179,12 +185,13 @@ class EventDisqualifier:
             
             weekday_end_time = self.user_profile["acceptable_times"]["weekdays"]["end"]
             if event_details["end_time"] and weekday_end_time:
-                end_time = datetime.strptime(event_details["end_time"], "%H:%M")
+                end_time_str = normalize_time_string(event_details["end_time"])
+                
+                end_time = datetime.strptime(end_time_str, "%H:%M")
                 end_time_user = datetime.strptime(weekday_end_time, "%H:%M")
                 # Add 30 minutes padding to end time
                 end_time_user = end_time_user + timedelta(minutes=30)
                 
-                # Normalize the datetimes
                 end_time, end_time_user = normalize_datetime(end_time, end_time_user)
                 
                 if end_time > end_time_user:
@@ -194,12 +201,13 @@ class EventDisqualifier:
         else:
             weekend_start_time = self.user_profile["acceptable_times"]["weekends"]["start"]
             if event_details["start_time"] and weekend_start_time:
-                start_time = datetime.strptime(event_details["start_time"], "%H:%M")
+                start_time_str = normalize_time_string(event_details["start_time"])
+                
+                start_time = datetime.strptime(start_time_str, "%H:%M")
                 start_time_user = datetime.strptime(weekend_start_time, "%H:%M")
                 # Add 30 minutes padding to start time
                 start_time_user = start_time_user - timedelta(minutes=30)
                 
-                # Normalize the datetimes
                 start_time, start_time_user = normalize_datetime(start_time, start_time_user)
                 
                 if start_time < start_time_user:
@@ -208,12 +216,13 @@ class EventDisqualifier:
             
             weekend_end_time = self.user_profile["acceptable_times"]["weekends"]["end"]
             if event_details["end_time"] and weekend_end_time:
-                end_time = datetime.strptime(event_details["end_time"], "%H:%M")
+                end_time_str = normalize_time_string(event_details["end_time"])
+                
+                end_time = datetime.strptime(end_time_str, "%H:%M")
                 end_time_user = datetime.strptime(weekend_end_time, "%H:%M")
                 # Add 30 minutes padding to end time
                 end_time_user = end_time_user + timedelta(minutes=30)
                 
-                # Normalize the datetimes
                 end_time, end_time_user = normalize_datetime(end_time, end_time_user)
                 
                 if end_time > end_time_user:
