@@ -5,12 +5,12 @@ from app.services.event_processing.event_relevance_calculator import EventReleva
 from app.services.event_processing.disqualify_event import EventDisqualifier
 from app.services.event_processing.extract_event_details import extract_event_details
 from app.services.scraping.scrap_web_page import scrap_page
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.language_models.chat_models import BaseChatModel
 from app.core.redis_client import redis_client
 from app.utils.event_utils import get_seconds_until_event
 from app.models.events_model import EventResult
 
-async def check_event(event_link: str, event_disqualifier: EventDisqualifier, event_relevance_calculator: EventRelevanceCalculator, model: ChatGoogleGenerativeAI, browser: Browser) -> EventResult | None:
+async def check_event(event_link: str, event_disqualifier: EventDisqualifier, event_relevance_calculator: EventRelevanceCalculator, model: BaseChatModel, browser: Browser) -> EventResult | None:
     print(f"Checking event: {event_link}")
 
     # Try to get cached result

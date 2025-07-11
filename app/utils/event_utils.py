@@ -1,6 +1,6 @@
 import datetime
 from app.models.events_model import EventResult
-from app.utils.date_utils import normalize_time_string
+from app.utils.date_utils import time_to_string
 
 def remove_duplicates_based_on_title(events: list[EventResult]) -> list[EventResult]:
     unique_events = []
@@ -28,7 +28,7 @@ def get_seconds_until_event(date_of_event: str | None, start_time: str | None) -
     if not date_of_event or not start_time:
         return A_DAY_IN_SECONDS
     try:
-        start_time = normalize_time_string(start_time)
+        start_time = time_to_string(start_time)
         
         dt_str = f"{date_of_event} {start_time}"
         event_dt = datetime.datetime.strptime(dt_str, "%d-%m-%Y %H:%M")

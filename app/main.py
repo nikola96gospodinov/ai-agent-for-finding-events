@@ -33,6 +33,8 @@ async def run_agent_endpoint(
     user: Dict[str, Any] = Depends(get_current_user),
     user_profile: UserProfile = Depends(get_current_user_profile),
 ):
+    print("user", user)
+    print("user_profile", user_profile)
     user_id = user.get('id')
     if not user_id:
         raise HTTPException(status_code=400, detail="User ID not found in token")

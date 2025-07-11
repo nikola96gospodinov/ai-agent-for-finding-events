@@ -6,15 +6,15 @@ from app.services.scraping.scrapers import get_event_links
 from app.services.event_processing.get_search_keywords_for_event_sites import get_search_keywords_for_event_sites
 from app.utils.event_utils import remove_duplicates_based_on_title, filter_events_by_relevance
 from app.services.event_processing.check_event import check_event
-from app.core.llm import great_free_model, powerful_model
+from app.core.llm import great_free_model, powerful_model, local_model
 from app.models.user_profile_model import UserProfile
 from app.utils.email_utils import format_events_for_email
 from app.services.email.send_email import post_message
 
 async def agent(user_profile: UserProfile, only_highly_relevant: bool = False):
-    search_keywords = get_search_keywords_for_event_sites(user_profile, powerful_model)
+    search_keywords = get_search_keywords_for_event_sites(user_profile, local_model)
     event_disqualifier = EventDisqualifier(user_profile)
-    event_relevance_calculator = EventRelevanceCalculator(powerful_model, user_profile)
+    event_relevance_calculator = EventRelevanceCalculator(local_model, user_profile)
 
     event_links = await get_event_links(search_keywords)
 
@@ -24,7 +24,7 @@ async def agent(user_profile: UserProfile, only_highly_relevant: bool = False):
     events = []
     for event_link in event_links:
         try:
-            event = await check_event(event_link, event_disqualifier, event_relevance_calculator, powerful_model, browser)
+            event = await check_event(event_link, event_disqualifier, event_relevance_calculator, local_model, browser)
             if event is not None:
                 events.append(event)
         except Exception as e:
