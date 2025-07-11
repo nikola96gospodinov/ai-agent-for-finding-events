@@ -1,9 +1,9 @@
 
 from mailgun.client import Client
-from app.core.env_vars import get_env_var
+from app.core.config import settings
 
-key = get_env_var("MAILGUN_API_KEY")
-domain = get_env_var("MAILGUN_DOMAIN")
+key = settings.MAILGUN_API_KEY
+domain = settings.MAILGUN_DOMAIN
 client: Client = Client(auth=("api", key)) # type: ignore
 
 def post_message(email_to: str, email_from: str, subject: str, html: str) -> None:
