@@ -22,3 +22,4 @@ httpx==0.28.1
 celery==5.5.3
 redis==6.2.0
 supabase==2.16.0
+mailgun==1.0.1
