@@ -27,6 +27,11 @@ app.add_middleware(
 async def root():
     return {"message": f"Welcome to {settings.PROJECT_NAME}"}
 
+@app.options("/run-agent")
+async def run_agent_options():
+    """Handle preflight OPTIONS requests for run-agent endpoint"""
+    return {}
+
 @app.post("/run-agent")
 async def run_agent_endpoint(
     only_highly_relevant: bool = Query(False, description="Event only highly relevant to the user or not"),
