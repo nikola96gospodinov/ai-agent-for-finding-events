@@ -19,16 +19,18 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright browsers
-RUN playwright install chromium
+# Install Playwright system dependencies as root
 RUN playwright install-deps chromium
 
-# Copy application code
-COPY . .
-
 # Create non-root user for security
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser
+
+# Install Playwright browsers as appuser
 USER appuser
+RUN playwright install chromium
+
+# Copy application code
+COPY --chown=appuser:appuser . .
 
 # Expose port (Cloud Run will set PORT env var)
 EXPOSE 8080
