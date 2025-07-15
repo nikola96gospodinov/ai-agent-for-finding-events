@@ -13,12 +13,9 @@ def get_upstash_redis_url():
     if not rest_url or not token:
         return "redis://localhost:6379/0"
     
-    # Extract host from REST URL (e.g., https://xxx-xxx-xxx.upstash.io)
     parsed = urlparse(rest_url)
     host = parsed.netloc
     
-    # Convert to Redis URL format with SSL and authentication
-    # Using rediss:// for SSL connection as recommended by Upstash
-    redis_url = f"rediss://:{token}@{host}:6379?ssl_cert_reqs=required"
+    redis_url = f"rediss://:{token}@{host}:6379?ssl_cert_reqs=none&ssl_check_hostname=false"
     
     return redis_url
