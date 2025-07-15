@@ -1,10 +1,7 @@
-import redis
+from upstash_redis import Redis
 from app.core.config import settings
 
-redis_client = redis.Redis(
-    host=settings.REDIS_HOST,
-    port=settings.REDIS_PORT,
-    db=settings.REDIS_DB,
-    password=settings.REDIS_PASSWORD if settings.REDIS_PASSWORD else None,
-    decode_responses=True  # Automatically decode responses to strings
+redis_client = Redis(
+    url=settings.UPSTASH_REDIS_REST_URL,
+    token=settings.UPSTASH_REDIS_REST_TOKEN
 )

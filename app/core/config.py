@@ -17,15 +17,9 @@ class Settings(BaseSettings):
     MAILGUN_API_KEY: str = ""
     MAILGUN_DOMAIN: str = ""
     
-    # Redis
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 1
-    REDIS_PASSWORD: str = ""
-    
-    # Celery
-    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
+    # Upstash Redis
+    UPSTASH_REDIS_REST_URL: str = ""
+    UPSTASH_REDIS_REST_TOKEN: str = ""
     
     class Config:
         case_sensitive = True

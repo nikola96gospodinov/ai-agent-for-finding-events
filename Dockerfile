@@ -32,8 +32,11 @@ RUN playwright install chromium
 # Copy application code
 COPY --chown=appuser:appuser . .
 
+# Make startup script executable
+RUN chmod +x start.sh
+
 # Expose port (Cloud Run will set PORT env var)
 EXPOSE 8080
 
-# Default command (can be overridden)
-CMD ["python", "run.py"]
+# Use the startup script that runs both FastAPI and Celery
+CMD ["./start.sh"]

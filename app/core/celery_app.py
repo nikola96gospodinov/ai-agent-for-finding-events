@@ -1,12 +1,10 @@
 from celery import Celery
-from app.core.config import settings
-
-# celery -A app.core.celery_app worker --loglevel=info
+from app.core.upstash_connection_link import get_upstash_redis_url
 
 celery_app = Celery(
     'ai_agents',
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND,
+    broker=get_upstash_redis_url(),
+    backend=get_upstash_redis_url(),
 )
 
 celery_app.conf.update(
